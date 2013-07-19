@@ -1,9 +1,49 @@
-public class TheoremSet {
+import java.util.*;
 
-  public TheoremSet ( ) {
+public class TheoremSet {
+	private Hashtable<String, Expression> theorems;
+	private static String[] illegalNames = {"print","show","assume","mp","mt","co","ic","repeat"};
+	//still need to add more to illegal characters, does java have a built in list of them?
+	private static String[] illegalChars = {"&", "|", "~", "\""};
+	
+	public TheoremSet ( ) {
+		theorems = new Hashtable<String, Expression>();
 	}
 
-	public Expression put (String s, Expression e) {
-		return null;
+	public Expression put(String s, Expression e) {
+		//name cannot be "print", "show", "assume", "mp", "mt", "co", "ic", or "repeat"
+		
+		for (String illegalName: illegalNames){
+			if (s.toLowerCase().equals(illegalName)){
+				throw new IllegalArgumentException("Cannot use the word " + illegalName + " as the name of a theorem");
+			}
+		}
+		
+		//name cannot contain special symbols &, | , ~ , ect.
+		for (String illegalChar : illegalChars){
+			if (s.contains(illegalChar)){
+				throw new IllegalArgumentException("Cannot use the character " + illegalChar + " in the name of a theorem");
+			}
+		}
+		
+		//name should be one word only, separated by -, letters/numbers only
+		//add check here
+		
+		theorems.put(s, e);
+		
+		return e;
+	}
+	
+	public Expression getTheorem(String s){
+		return theorems.get(s);
+	}
+	
+	public Enumeration<String> theoremNamesEnumeration(){
+		return theorems.keys();
+	}
+	
+	public Enumeration<Expression> theoremEnumeration(){
+		return theorems.elements();
 	}
 }
+
