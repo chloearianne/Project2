@@ -4,7 +4,7 @@ public class TheoremSet {
 	private Hashtable<String, Expression> theorems;
 	private static String[] illegalNames = {"print","show","assume","mp","mt","co","ic","repeat"};
 	//still need to add more to illegal characters, does java have a built in list of them?
-	private static String[] illegalChars = {"&", "|", "~", "\""};
+	private static String[] illegalChars = {"&", "|", "~", "\"", ">", "=", "<", "(", ")"};
 	
 	public TheoremSet ( ) {
 		theorems = new Hashtable<String, Expression>();
@@ -44,6 +44,14 @@ public class TheoremSet {
 	
 	public Enumeration<Expression> theoremEnumeration(){
 		return theorems.elements();
+	}
+	
+	public boolean hasTheorem(String s){
+		return theorems.containsKey(s);
+	}
+	
+	public boolean validTheorem(String s, Expression exp){
+		return false;
 	}
 }
 
