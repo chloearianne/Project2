@@ -1,11 +1,11 @@
 import java.util.*;
 
 public class Proof {
+	private TheoremSet theorems;
+
 
   public Proof (TheoremSet theorems) {
-  
-  	//Hi again
-  	//heeeeeeeeee
+  		this.theorems = theorems;
 	}
 
 	public LineNumber nextLineNumber ( ) {
@@ -13,6 +13,43 @@ public class Proof {
 	}
 
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
+		//new scanner breaks up the string into the 2 segments
+		Scanner expScanner = new Scanner(x);
+		String reason = expScanner.next();
+		Expression expression;
+		if (reason.equals("print")){
+			//do stuff
+		}
+		else if(!expScanner.hasNext()){
+			throw new IllegalLineException("A reason should be followed by an expression");
+		}
+		//should have an expression following it
+		else{
+			try{
+				expression = new Expression (expScanner.next ( ));
+			} catch (IllegalLineException e){
+				//do stuff
+			}
+		}
+		
+		if(expScanner.hasNext()){
+			throw new IllegalLineException("A reason should be followed by only one expression");
+		}
+		
+		
+		//check for type of reason and do stuff
+		
+		
+		//insert other cases here
+		
+		
+		
+		
+		if(theorems.hasTheorem(reason)){
+			//do stuff
+		}
+		
+		
 	}
 
 	public String toString ( ) {
