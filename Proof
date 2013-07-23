@@ -14,8 +14,47 @@ public class Proof {
 	}
 
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
+		//new scanner breaks up the string into the 2 segments
+		Scanner expScanner = new Scanner(x);
+		String reason = expScanner.next();
+		Expression expression;
+		if (reason.equals("print")){
+			//do stuff
+		}
+		else if (show....ect.){
+			
+		}
+		else if (theorems.hasTheorem(reason)){
+			//do stuff
+		}
+		if(!expScanner.hasNext()){
+			throw new IllegalLineException("A reason should be followed by an expression");
+		}
+		//should have an expression following it
+		else{
+			try{
+				expression = new Expression (expScanner.next ( ));
+			} catch (IllegalLineException e){
+				//do stuff
+			}
+		}
+		
+		if(expScanner.hasNext()){
+			throw new IllegalLineException("A reason should be followed by only one expression");
+		}
+		
+		
+		//check for type of reason and do stuff
+		
+		
+		//insert other cases here
+		
 		Expression myExpression = new Expression(x);
 		originalProof.addChildProof(myExpression);
+		
+		
+			
+		
 	}
 
 	public String toString ( ) {
