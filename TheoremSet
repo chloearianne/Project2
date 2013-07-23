@@ -50,7 +50,46 @@ public class TheoremSet {
 		return theorems.containsKey(s);
 	}
 	
+	//takes in the string name of a theorem and checks if exp implements the corresponding theorem correctly
+	//returns true if it is a valid use of the theorem s, and false if not
 	public boolean validTheorem(String s, Expression exp){
+		if (!hasTheorem(s)){
+			return false;
+		}
+		
+		String theorem = getTheorem(s).toString();
+		String expression = exp.toString();
+		int exprPos = 0;
+		Hashtable<Character, String> myVars = new Hashtable<Character,String>();
+		String specialSymbols = "()&|~=<"; 
+        for (int i=0; i<theorem.length()-1; i++) {
+        	//if they have the same character, continue
+            if (theorem.charAt(i) == expression.charAt(exprPos) && specialSymbols.contains("" + theorem.charAt(i))){
+            	continue;
+            }
+            else{
+            	int start = exprPos;
+            	int end = exprPos;
+            	int nested = 0;
+            	//not already a pre-defined variable, needs to be defined
+            	if(!myVars.contains(theorem.charAt(i))){
+            		String exprValue = "";
+            		if(expression.charAt(exprPos))
+            		//check for ~
+            		//check for a complete () expression
+            		myVars.put(theorem.charAt(i), exprValue);
+            	} else{
+            		
+            	}
+            	
+            	
+            	exprPos = 0;
+            	
+            }
+            
+            exprPos++;
+        }
+		
 		return false;
 	}
 }
