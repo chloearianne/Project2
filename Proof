@@ -1,62 +1,69 @@
 import java.util.*;
 
-public class Proof {
-	private TheoremSet theorems;
+public class Proof { 
+	
+	SubProof originalProof = null;
 
-
-  public Proof (TheoremSet theorems) {
-  		this.theorems = theorems;
+	public Proof (TheoremSet theorems) {
+		originalProof = new SubProof(null, null, "0");
 	}
 
 	public LineNumber nextLineNumber ( ) {
-		return null;
+		LineNumber myLine = new LineNumber();
+		return myLine;
 	}
 
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
-		//new scanner breaks up the string into the 2 segments
-		Scanner expScanner = new Scanner(x);
-		String reason = expScanner.next();
-		Expression expression;
-		if (reason.equals("print")){
-			//do stuff
-		}
-		else if(!expScanner.hasNext()){
-			throw new IllegalLineException("A reason should be followed by an expression");
-		}
-		//should have an expression following it
-		else{
-			try{
-				expression = new Expression (expScanner.next ( ));
-			} catch (IllegalLineException e){
-				//do stuff
-			}
-		}
-		
-		if(expScanner.hasNext()){
-			throw new IllegalLineException("A reason should be followed by only one expression");
-		}
-		
-		
-		//check for type of reason and do stuff
-		
-		
-		//insert other cases here
-		
-		
-		
-		
-		if(theorems.hasTheorem(reason)){
-			//do stuff
-		}
-		
-		
+		Expression myExpression = new Expression(x);
+		originalProof.addChildProof(myExpression);
 	}
 
 	public String toString ( ) {
+		String toReturn = "";
+		for (int k = 0; k < )
 		return "";
 	}
 
 	public boolean isComplete ( ) {
-		return true;
+		 SubProof toProve = originalProof.childProofs.get(0);
+		 Expression firstExpr = toProve.myExpression;
+		 String firstString = firstExpr.toString();
+		 SubProof lastProof = originalProof.childProofs.get(originalProof.childProofs.size() - 1);
+		 Expression lastExpr = lastProof.myExpression;
+		 String lastString = lastExpr.toString();
+		 return lastString.equals(firstString);
+		
+	}
+	
+	private static class SubProof {
+
+		public Expression myExpression;
+		public SubProof parentProof;
+		public ArrayList<SubProof> childProofs;
+		public String myLineNumber;
+		
+		public SubProof(Expression expr, SubProof parent, String line) {
+			parentProof = parent;
+			childProofs = new ArrayList<SubProof>();
+			myExpression = expr;
+			myLineNumber = line;
+		}
+		
+		public SubProof parent () {
+			return parentProof;
+		}
+		
+		public void addChildProof(Expression newExpression) {
+			int childNumber = this.childProofs.size();
+			SubProof child = new SubProof(newExpression, this, this.myLineNumber + "." + childNumber);
+			childProofs.add(child);
+		}
+		
+		public String lineNumber () {
+			return myLineNumber;
+		}
+		
+		
 	}
 }
+	
