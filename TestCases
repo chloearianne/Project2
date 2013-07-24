@@ -1,0 +1,118 @@
+Things to write test cases for:
+
+  
+		//invalid symbols/input in general
+			null string
+			p
+			(p=>q)          //doesn't have a reason
+			* p
+			p=>q
+			8896
+			@#$
+			>
+			null string
+			show (p=>q)         a     //ends with a character, checks if the parser ends early
+			sowh (p=>q)				  //incorrect spellings
+			show					  //reason not followed by expression
+			
+			
+			//extra spaces
+			      show     (p=>p)         //spaces behind as well
+			s how p
+			show (  p=  >q)
+			
+		
+		//Uses of show
+			//not beginning the proof with a show
+				TheoremSet myThms = new TheoremSet();
+				Proof p = new Proof(myThms);
+				//ie. try to start with:
+				p.extendProof("assume p")
+				print p
+				mp p
+				and1 p
+				repeat 0
+				
+		
+		
+		//Uses of assume
+			//cannot assume what you're trying to prove
+				show (p=>q)
+				assume (p=>q)
+				
+				show p
+				assume p
+				
+				show ((b=>c)=>(a=>c))
+				assume ((b=>c)=>(a=>c))
+		
+		
+			//cannot assume things on the right hand side
+				show ((b=>c)=>(a=>c))
+				assume (a=>c)
+			
+			//test 2 assumes in a row
+				show (p=>q)
+				assume p
+				assume q
+				
+				show (p=>q)
+				assume p
+				assume p
+			
+			//assume does not follow show
+				show (p=>q)
+			
+		
+		
+		
+		
+		//incorrect and correct uses of mp
+			//incorrect arguments
+			
+			
+			//incorrect logic
+		
+		
+		
+		
+		//incorrect and correct uses of mt
+			//incorrect arguments
+			
+			
+			
+			//incorrect logic
+		
+		
+		
+		
+		
+		//incorrect and correct uses of co
+		
+		
+		
+		
+		 
+		
+		
+		//tests for ic and repeat		
+			//cannot repeat its own line?
+				3.1 repeat 3.1
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
