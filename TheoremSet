@@ -1,17 +1,28 @@
 import java.util.*;
 
+//assumes Expression has an equals method to compare 2 expressions, 
+//a getLeft, and getRight method that returns an expression
+//and a toString method
 public class TheoremSet {
+	//check for no spaces, odd characters $ are ok
 	private Hashtable<String, Expression> theorems;
 	private static String[] illegalNames = {"print","show","assume","mp","mt","co","ic","repeat"};
 	//still need to add more to illegal characters, does java have a built in list of them?
-	private static String[] illegalChars = {"&", "|", "~", "\"", ">", "=", "<", "(", ")"};
+	private static String[] illegalChars = {"&", "|", "~", "\"", ">", "=", "(", ")"};
 	
 	public TheoremSet ( ) {
 		theorems = new Hashtable<String, Expression>();
 	}
 
+	//put takes in a String name of the theorem and the corresponding expression as arguments
+	//adds these to a hashtable and returns the expression(theorem) just added
+	//capitalization doesn't matter, automatically puts it as lowercase
 	public Expression put(String s, Expression e) {
-		//name cannot be "print", "show", "assume", "mp", "mt", "co", "ic", or "repeat"
+		//name should be one word only, separated by -, letters/numbers only
+		String[] name = s.split(" ");
+		if(name.length != 1){
+			throw new IllegalArgumentException("Theorem names must only be one word");
+		}
 		
 		for (String illegalName: illegalNames){
 			if (s.toLowerCase().equals(illegalName)){
@@ -26,9 +37,7 @@ public class TheoremSet {
 			}
 		}
 		
-		//name should be one word only, separated by -, letters/numbers only
-		//add check here
-		
+				
 		theorems.put(s, e);
 		
 		return e;
@@ -38,20 +47,66 @@ public class TheoremSet {
 		return theorems.get(s);
 	}
 	
-	public Enumeration<String> theoremNamesEnumeration(){
-		return theorems.keys();
-	}
-	
-	public Enumeration<Expression> theoremEnumeration(){
-		return theorems.elements();
-	}
-	
 	public boolean hasTheorem(String s){
 		return theorems.containsKey(s);
 	}
 	
 	//takes in the string name of a theorem and checks if exp implements the corresponding theorem correctly
-	//returns true if it is a valid use of the theorem s, and false if not
+	//returns true if it is a valid use of the theorem s, and false if not	
+	public boolean validTheorem(String s, Expression exp){
+		if (!hasTheorem(s)){
+			return false;
+		}
+		
+		Expression theorem = getTheorem(s);
+		return validTheoremHelper(theorem, exp);
+			
+	}
+	
+	//hashtable to keep track of the variables and the corresponding expression
+	private Hashtable<String, Expression> myVars= new Hashtable<String, Expression>();
+	
+	//theorem and expression should have the same format until you hit a variable for the theorem
+	//checks to see if the resulting tree nodes are equal
+	private boolean validTheoremHelper(Expression thm, Expression exp){
+		//check if this is a correct use of regex
+		//if it's a variable, it should always be at a leaf
+		if (thm.myItem.matches("[a-z]")){
+			if(myVars.containsKey(thm.myItem)){
+				if(!myVars.get(thm.myItem).equals(exp)){
+					return false;
+					//throw new IllegalInferenceException("Improper use of theorem. Variables do not match up.");
+				} else{
+					myVars.put(thm.myItem, exp);
+					//if it hits the variable, then it should be at a leaf so it should return true
+					return true;
+				}
+			}
+		} else if(thm.myItem.equals(exp.myItem)){
+			//do a recursive call, if the left side is true check the right side
+			if(validTheoremHelper(thm.myLeft, exp.myLeft)){
+				return validTheoremHelper(thm.myRight, exp.myRight);
+			}
+			return false;
+				
+		} 
+		//throw new IllegalInferenceException("Improper use of a theorem");
+		return false;
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
 	public boolean validTheorem(String s, Expression exp){
 		if (!hasTheorem(s)){
 			return false;
@@ -68,29 +123,61 @@ public class TheoremSet {
             	continue;
             }
             else{
-            	int start = exprPos;
-            	int end = exprPos;
             	int nested = 0;
+            	boolean done = false;
             	//not already a pre-defined variable, needs to be defined
             	if(!myVars.contains(theorem.charAt(i))){
             		String exprValue = "";
-            		if(expression.charAt(exprPos))
-            		//check for ~
-            		//check for a complete () expression
+            		while(!done){
+                		//check for ~
+            			if(expression.charAt(exprPos) == '~'){
+            				//check to see if it's followed by either parens or a letter
+            				if(expression.charAt(exprPos+1).isLetter()){		//check for out of bounds cases
+            					done = true;
+            				}
+            			} 
+            			//check for a complete () expression
+            			if (expression.charAt(exprPos) == '('){
+            				nested ++;
+            			} else if (expression.charAt(exprPos) == ')'){
+            				nested --;
+            				if(nested == 0){
+            					done = true;
+            				}
+            			}
+        				exprValue += expression.charAt(exprPos);
+            			exprPos ++;
+            			
+            		}
+            		int end = exprPos;
+            		//check if it's a valid expression
+            		try{
+            			Expression e = new Expression(exprValue);
+            		} catch (Exception e){
+            			return false;
+            		}
             		myVars.put(theorem.charAt(i), exprValue);
-            	} else{
-            		
+            	} else{ //check to see if the expressions match for the same variable
+            			//if it doesn't match, return false, else, keep parsing
+            		int exprLength = myVars.get(theorem.charAt(i)).length();
+            		String subString = expression.substring(exprPos, exprPos+exprLength);
+            		if (!subString.equals(myVars.get(theorem.charAt(i)))){
+            			return false;
+            		}
+            		exprPos += exprLength;
             	}
             	
             	
-            	exprPos = 0;
+            	//exprPos = 0;
             	
             }
             
-            exprPos++;
+            //exprPos++;
         }
 		
 		return false;
-	}
+		**/
+	
+	
 }
 
