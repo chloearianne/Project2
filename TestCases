@@ -1,26 +1,72 @@
 Things to write test cases for:
 
-  
-		//invalid symbols/input in general
-			null string
-			p
-			(p=>q)          //doesn't have a reason
-			* p
-			p=>q
-			8896
-			@#$
-			>
-			null string
-			show (p=>q)         a     //ends with a character, checks if the parser ends early
-			sowh (p=>q)				  //incorrect spellings
-			show					  //reason not followed by expression
+	
+		//invalid symbols/input in general, should be handled by the extendProof method
+			//these exceptions should be handled before ever hitting the Expression class
+				null string
+				p
+				(p=>q)          //doesn't have a reason
+				* p
+				p=>q
+				8896
+				@#$
+				>
+				null string
+				show (p=>q)         a     //ends with a character, checks if the parser ends early
+				sowh (p=>q)				  //incorrect spellings
+				show					  //reason not followed by expression
+				
+				
+				//extra spaces
+				      show     (p=>p)         //spaces behind as well
+				s how p
+				show (  p=  >q)
+			
+		
+		
+		//Invalid expressions
+			//garbage input
+				show *$%lshjk
+				show ""
+				show (he=>llo)
+				show null
+				show                  12
+				show ~ab
+			
+			//incorrect use of ()
+				show ((((((a=>b)			//non matching parens
+				show (a=>b))
+				show (a=)>b)				//parens inside of statement
+				show (a&(b)					
+				show ((p(=>(q|(~a)))))
+				show ((p|q))
+			
+			//incorrect use of ~, &, |
+				show (a&b&c)
+				show (a|b|c)
+				show (a|b&c)
+				show (~p~q)
+				show (a&|b)
+				show (&a)
+				show (a~b)
+				
 			
 			
-			//extra spaces
-			      show     (p=>p)         //spaces behind as well
-			s how p
-			show (  p=  >q)
-			
+			//other invalid cases
+				show (b)					//variables do not need to be inside ()
+				show (~b)
+				show ()
+				
+				
+		//Legal Expressions
+				show ~(p=>q)				//~ is followed by a non-variable
+				show p
+				show ((p&q)|r)
+				show ((p&q)&(s&t))			//nested statements
+				show ~~~~~p
+				
+				
+				
 		
 		//Uses of show
 			//not beginning the proof with a show
@@ -96,6 +142,9 @@ Things to write test cases for:
 		
 		
 		//tests for ic and repeat		
+			//incorrect arguments
+			
+			
 			//cannot repeat its own line?
 				3.1 repeat 3.1
 		
