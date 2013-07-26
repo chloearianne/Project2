@@ -1,0 +1,170 @@
+//EQUALS IS A PLACEHOLDER METHOD! REPLACE WITH SOMETHING TO TRAVERSE THE TREES TO PATTERN MATCH  
+		//Use a tree to do the pattern checking
+		//ex: line2.subtree matches with line1.root
+
+
+public class terrytester {
+	LineNumber currentLineNumber; //PLACEHOLDER FOR NOW UNTIL WE HAVE CURRENTLINENUMBER
+	public static String switchSign(String s) {
+		if (s.substring(0,1).equals("~")) {
+			return s.substring(1, s.length());
+		} else {
+			return "~" + s;
+		}
+	}
+	
+	public void assume(Expression exp) {
+		currentLineNumber = new LineNumber(exp.value, exp.valueLeft, exp.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+		System.out.println("Assuming " + exp.value + " is true...");
+	}
+	
+	public void mp(LineNumber line1, LineNumber line2, Expression rtn) throws IllegalInferenceException {
+		try {
+			System.out.println("Testing a modus ponens: Does " + line1.value + " and " + line2.value + " imply " + rtn.value + "?");
+			if (line1.value.length() > line2.value.length()) { // checks if the two LineNumbers are in the right order, if not, switches them.
+				LineNumber temp = line1;
+				line1 = line2;
+				line2 = temp;
+			}
+			if (line2.valueLeft.equals(line1.value)) { //Need to write a LineNumber-specific equals method 
+				if (line2.valueRight.equals(rtn.value)) { 
+					//add rtn to arraylist of proven LineNumbers
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					System.out.println("Result: " + rtn.value + " is true!");
+				} else {
+					throw new IllegalInferenceException("bad inference");
+				}
+			}
+			
+			else {
+				throw new IllegalInferenceException("bad inference");
+			}
+		} catch (IllegalInferenceException e) {
+			System.out.println("bad inference!");
+		}
+	}
+	
+	public void mt(LineNumber line1, LineNumber line2, Expression rtn) throws IllegalInferenceException { //says String but it should say Expression
+		try {
+			System.out.println("Testing a modus tollens: Does " + line1.value + " and " + line2.value + " imply " + rtn.value + "?");
+			if (line1.value.length() > line2.value.length()) { // checks if the two LineNumbers are in the right order, if not, switches them.
+				LineNumber temp = line1;
+				line1 = line2;
+				line2 = temp;
+			}
+			if (line2.valueRight.equals(switchSign(line1.value))) {	
+				if (line2.valueLeft.equals(switchSign(rtn.value))) { 
+					//add rtn to arraylist of proven LineNumbers
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					System.out.println("Result: " + rtn.value + " is true!");
+				} else { 
+					throw new IllegalInferenceException("bad inference");
+				}
+			}
+			else {
+				throw new IllegalInferenceException("bad inference");
+			}
+		} catch (IllegalInferenceException e) {
+			System.out.println("bad inference!");
+		}
+	}
+	
+	public void co(LineNumber line1, LineNumber line2, Expression rtn) throws IllegalInferenceException {
+		try {
+			System.out.println("Testing a contradiction: Does " + line1.value + " and " + line2.value + " imply " + rtn.value + "?");
+			if (line1.value.length() > line2.value.length()) { // checks if the two LineNumbers are in the right order, if not, switches them.
+				LineNumber temp = line1;
+				line1 = line2;
+				line2 = temp;
+			}
+			if (line1.isProven && line2.isProven && (switchSign(line1.value)).equals(line2.value)) { //~p, p=>q, q
+				if (rtn.valueLeft.equals(line1.value) || rtn.valueLeft.equals(line2.value)) { 
+					//add rtn to arraylist of proven LineNumbers
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					System.out.println("Result: " + rtn.value + " is true!");
+				} else {
+					throw new IllegalInferenceException("bad inference");
+				}
+			}
+			else {
+				throw new IllegalInferenceException("bad inference");
+			}
+	  } catch (IllegalInferenceException e) {
+		  System.out.println("bad inference!");
+	  }
+	}
+	
+	public void ic(LineNumber line1, Expression rtn) throws IllegalInferenceException {
+		try {
+			System.out.println("Testing an IC: Does " + line1.value + " imply " + rtn.value + "?");
+			if (line1.isProven) {
+				if (line1.value.equals(rtn.valueRight)) { 
+					//add rtn to arraylist of proven LineNumbers
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					System.out.println("Result: " + rtn.value + " is true!");
+				} else {
+					throw new IllegalInferenceException("bad inference");
+				}
+			}
+			else {
+				throw new IllegalInferenceException("bad inference");
+			}
+		} catch (IllegalInferenceException e) {
+			 System.out.println("bad inference!");
+		}
+	}
+	
+	public static void main(String[] args) throws IllegalInferenceException {
+		terrytester terry = new terrytester();
+		LineNumber a1 = new LineNumber();
+		LineNumber a1reverse = new LineNumber();
+		LineNumber a2 = new LineNumber();
+		LineNumber a3 = new LineNumber();
+		LineNumber a4 = new LineNumber();
+		LineNumber a5 = new LineNumber();
+		LineNumber a6 = new LineNumber();
+		LineNumber a7 = new LineNumber();
+		LineNumber a8 = new LineNumber();
+		a1.value = "p";
+		a1reverse.value = "~p";
+		a2.value = "p=>q";
+		a2.valueLeft = "p";
+		a2.valueRight = "q";
+		a3.value = "x";
+		a4.value = "~y=>~x";
+		a4.valueLeft = "~y";
+		a4.valueRight = "~x";
+		a5.value = "s";
+		a5.value = "t";
+		a5.valueLeft = "t";
+		a5.valueRight = "t";
+		a6.value = "q";
+		
+		Expression e1 = new Expression();
+		e1.value = "q";
+		Expression e2 = new Expression();
+		e2.value = "w";
+		Expression e3 = new Expression();
+		e3.value = "y";
+		Expression e4 = new Expression();
+		Expression e5 = new Expression();
+		e5.value = "p";
+		e4.value = "p=>q";
+		e4.valueLeft = "p";
+		e4.valueRight = "q";
+		
+		
+		terry.mp(a1, a2, e1);
+		terry.mp(a1, a2, e2);
+		terry.mp(a3, a4, e3);
+		terry.mt(a3, a4, e3);
+		terry.mt(a3, a4, e1);
+		a1.isProven = true;
+		a1reverse.isProven = true;
+		terry.co(a1, a1reverse, e2);
+		terry.co(a1, a1reverse, e4);
+		terry.ic(a6, e4);
+		a6.isProven = true;
+		terry.ic(a6, e4);
+	}
+}
