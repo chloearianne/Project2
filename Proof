@@ -1,43 +1,113 @@
 import java.util.*;
 
-public class Proof { 
-	
+public class Proof {
+	private TheoremSet theorems;
+	private boolean originalTheoremInit = false;
+	private String prevReason;
 	SubProof originalProof = null;
+	SubProof currentProof;
+	String previousReason;
+	ArrayList<SubProof> isProvenGlobal;
+	TheoremSet myTheorems;
+	int step;
 
+	// Construct a proof by setting up the original (root) proof.
 	public Proof (TheoremSet theorems) {
-		originalProof = new SubProof(null, null, "0");
+		originalProof = new SubProof(null, null, new LineNumber(0));
+		currentProof = originalProof;
+		isProvenGlobal = new ArrayList<SubProof>();
+		myTheorems = theorems;
+		previousReason = "";
 	}
 
 	public LineNumber nextLineNumber ( ) {
-		LineNumber myLine = new LineNumber();
-		return myLine;
+		if (!(originalProof == null)) {
+			LineNumber myLine = new LineNumber();
+			return myLine;
+		}
+		return null;
 	}
-
+	
+	
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
 		//new scanner breaks up the string into the 2 segments
 		Scanner expScanner = new Scanner(x);
 		String reason = expScanner.next();
-		Expression expression;
-		if (reason.equals("print")){
-			//do stuff
-		}
-		else if (show....ect.){
-			
-		}
-		else if (theorems.hasTheorem(reason)){
-			//do stuff
-		}
-		if(!expScanner.hasNext()){
+		Expression expression = null;
+		
+		if(!expScanner.hasNext() && !reason.equals("print")){
 			throw new IllegalLineException("A reason should be followed by an expression");
+		}
+		else if(expScanner.hasNext() && reason.equals("print")){
+			throw new IllegalLineException ("print should not be followed by any characters");
 		}
 		//should have an expression following it
 		else{
 			try{
 				expression = new Expression (expScanner.next ( ));
 			} catch (IllegalLineException e){
-				//do stuff
+				throw e;
 			}
 		}
+		
+		//make new LineNumber for this step of the proof
+		
+		
+		
+		
+		
+		
+		
+		
+		//different cases for the different reasons
+		
+		if (reason.equals("print")){
+			System.out.println(this);
+		} 
+		//handles show
+		else if (reason.equals("show")){
+			if (!originalTheoremInit){
+				originalTheorem = new SubProof(expression, );
+			} else{
+				SubProof child = new SubProof(expression, currentProof, new LineNumber(currentProof, expression, 1));
+				currentProof.addChildProof(child);
+				//make new subProof
+			}
+		}
+		//handles assume
+		else if (reason.equals("assume")){
+			if (!prevReason.equals("show")){
+				throw new IllegalLineException("An assume can only follow a show");
+			} else{
+				currentProof.assumptions.put(lineNum,expression);
+			}
+		}
+		//handles repeat
+		else if (reason.equals("repeat")){
+			//do stuff
+		}
+		
+		//if valid, add to subproof's assumptions
+		//check for line number
+		else if (reason.equals("mp")){
+			
+		}
+		else if (reason.equals("mt")){
+			
+		}
+		else if (reason.equals("co")){
+			
+		}
+		else if (reason.equals("ic")){
+			
+		}		
+		//ect.
+		else if (theorems.hasTheorem(reason)){
+			if (theorems.validTheorem(reason, expression)){
+				//extend the proof
+			}
+		}
+		
 		
 		if(expScanner.hasNext()){
 			throw new IllegalLineException("A reason should be followed by only one expression");
@@ -49,60 +119,88 @@ public class Proof {
 		
 		//insert other cases here
 		
-		Expression myExpression = new Expression(x);
-		originalProof.addChildProof(myExpression);
+		
+		
+		prevReason = reason;
+		originalProof.addChildProof(expression);
 		
 		
 			
 		
 	}
-
+	
 	public String toString ( ) {
-		String toReturn = "";
-		for (int k = 0; k < )
+		if (!(originalProof == null)) {
+			return toStringHelper(originalProof);
+		}
 		return "";
+	}	
+	
+	public String toStringHelper(SubProof pf) {
+		String toReturn = "";
+		toReturn = toReturn + "/n" + pf.myLineNumber + " " + pf.reason + " " + pf.myExpression.toString();
+		Iterator<SubProof> iter = pf.childProofs.iterator();
+		while (iter.hasNext()) {
+			toStringHelper(iter.next());
+		}
+		return toReturn;
 	}
-
+	
 	public boolean isComplete ( ) {
-		 SubProof toProve = originalProof.childProofs.get(0);
-		 Expression firstExpr = toProve.myExpression;
-		 String firstString = firstExpr.toString();
-		 SubProof lastProof = originalProof.childProofs.get(originalProof.childProofs.size() - 1);
-		 Expression lastExpr = lastProof.myExpression;
-		 String lastString = lastExpr.toString();
-		 return lastString.equals(firstString);
+		int sizeOfChildren = originalProof.childProofs.size();
+		// If the last step of the proof has children, then that subproof is clearly not done and it's impossible
+		// for the entire proof to be done.
+		if (!(originalProof.childProofs.get(sizeOfChildren - 1).childProofs == null)) {
+			return false;
+		}
+		// Convert originalProof expression (saved in firstExpr) to a string, and convert the most recent proof step 
+		// to a string and save it in lastExpr. Compare these two to see if they're the same. If they are, the proof is done.
+		SubProof toProve = originalProof.childProofs.get(0);
+		Expression firstExpr = toProve.myExpression;
+		String firstString = firstExpr.toString();
+		
+		SubProof lastProof = originalProof.childProofs.get(sizeOfChildren - 1);
+		Expression lastExpr = lastProof.myExpression;
+		String lastString = lastExpr.toString();
+		return lastString.equals(firstString) && lastProof.myLineNumber.isProven;
 		
 	}
 	
-	private static class SubProof {
+	// SubProof is a child class much like Amoeba was a child class of AmoebaFamily. Each proof object has a original proof
+	// that is analogous to myRoot (stored in myExpression), and an ArrayList of childProofs that is analogous to myChildren.
+	// Each proof also contains its own line number and a reference to its parent proof.
+	public static class SubProof {
 
-		public Expression myExpression;
-		public SubProof parentProof;
-		public ArrayList<SubProof> childProofs;
-		public String myLineNumber;
+		//hashtable for states-- what is true for this particular proof, what's been assumed, proven 
+		//change subproof to proof instead of line
 		
-		public SubProof(Expression expr, SubProof parent, String line) {
+		private Expression myExpression;
+		private SubProof parentProof;
+		private ArrayList<SubProof> childProofs;
+		private LineNumber myLineNumber;
+		private String reason;
+		private HashTable<LineNumber, Expression> assumptions;
+		
+		public SubProof(Expression expr, SubProof parent, LineNumber line) {
 			parentProof = parent;
 			childProofs = new ArrayList<SubProof>();
 			myExpression = expr;
 			myLineNumber = line;
+			assumptions = new HashTable<LineNumber, Expression>();
 		}
 		
-		public SubProof parent () {
-			return parentProof;
+		public boolean hasParent () {
+			return !(this.parentProof == null);
 		}
 		
-		public void addChildProof(Expression newExpression) {
-			int childNumber = this.childProofs.size();
-			SubProof child = new SubProof(newExpression, this, this.myLineNumber + "." + childNumber);
+		public void addChildProof(SubProof child) {
 			childProofs.add(child);
 		}
 		
-		public String lineNumber () {
+		public LineNumber lineNumber () {
 			return myLineNumber;
 		}
 		
 		
 	}
 }
-	
