@@ -1,2 +1,40 @@
 public class LineNumber {
+  
+	Proof.SubProof myProof;
+	Integer step;
+	boolean isProven;
+	Expression myExpression;
+	String myString;
+	
+	public LineNumber(int i) {
+		myString = "1";
+	}
+	
+	public LineNumber(Proof.SubProof pf, Expression expr, int stepNumber) {
+		myProof = pf;
+		myExpression = expr;
+		step = stepNumber;
+		isProven = false;
+		myNumber();
+	}
+	
+	public void myNumber() {
+		String line;		
+		if (!(myProof.hasParent())) {
+			myString = step.toString();
+		} else {
+			int pfIndex = myProof.parentProof.childProofs.indexOf(myProof);
+			line = myProof.parentProof.myLineNumber + "." + pfIndex + "." + step;
+			myString = line;
+		}
+	}
+	
+	public String toString() {
+		return this.myString;
+	}
 }
+
+
+
+
+
