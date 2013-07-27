@@ -25,7 +25,7 @@ public class terrytester {
 			System.out.println("bad inference!");
 		}
 	}
-	
+
 	public void mp(LineNumber line1, LineNumber line2, Expression rtn) throws IllegalInferenceException {
 		try {
 			System.out.println("Testing a modus ponens: Does " + line1.value + " and " + line2.value + " imply " + rtn.value + "?");
