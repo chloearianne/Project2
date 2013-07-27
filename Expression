@@ -22,6 +22,7 @@ public class Expression2 {
 		return true;
 	}
 	
+/*
 	public static boolean equals(ExprNode node1, ExprNode node2){
 		if(!node1.myItem.equals(node2)){
 			return false;
@@ -34,7 +35,7 @@ public class Expression2 {
 		}
 		return true;
 	}
-	
+*/
 	
 	
 	public String toString() {
