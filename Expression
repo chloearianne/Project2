@@ -1,4 +1,4 @@
-//WROTE WORKING CONSTRUCTOR AND WORKING EQUALS METHOD AS FAR AS I CAN TELL, EXCEPT IT DOESN'T HANDLE TILDES -Terry
+//I MADE CONSTRUCTOR WORK AND I WROTE WORKING EQUALS AND TOSTRING METHODS, EXCEPT IT DOESN'T HANDLE TILDES -Terry
 
 public class Expression2 {
 	
@@ -194,6 +194,35 @@ public class Expression2 {
 			return true;
 		}
 		
+		public String toString() {
+			String rtn = "(";
+			if (myLeft != null) {
+				rtn = rtn + myLeft.toStringHelper();
+			}
+			rtn = rtn + myItem; 
+			if (myRight != null) {
+				rtn = rtn + myRight.toStringHelper();
+			}
+			rtn = rtn + ")";
+			return rtn;
+		}
+		
+		public String toStringHelper() {
+			if (myLeft == null && myRight == null) {
+				return myItem;
+			}
+			String rtn = "(";
+			if (myLeft != null) {
+				rtn = rtn + myLeft.toStringHelper();
+			}
+			rtn = rtn + myItem; 
+			if (myRight != null) {
+				rtn = rtn + myRight.toStringHelper();
+			}
+			rtn = rtn + ")";
+			return rtn;
+		}
+		
 	}
 	
 	public static void main(String[] args){
@@ -216,7 +245,9 @@ public class Expression2 {
 		
 		Expression2 testExp1 = new Expression2("((a=>(b|c))=>((d&e)|f))");
 		Expression2 testExp2 = new Expression2("(((a=>(b|c))=>((d&e)|f))=>z)");
+		System.out.println(testExp1.myRoot.equals(testExp2.myRoot));
 		System.out.println(testExp1.myRoot.equals(testExp2.myRoot.myLeft));
+		System.out.println(testExp2.toString());
 	}
 	
 	
