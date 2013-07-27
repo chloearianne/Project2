@@ -1,4 +1,4 @@
-//SHOULD WORK BEAUTIFULLY EXCEPT FOR TILDE CASES
+//WORKING CONSTRUCTOR AND EQUALS METHOD AS FAR AS I CAN TELL, EXCEPT IT DOESN'T HANDLE TILDES
 
 public class Expression2 {
 	
@@ -166,13 +166,39 @@ public class Expression2 {
 		}
 		
 		private boolean equals(ExprNode node){
+			if (!myItem.equals(node.myItem)) {
+				return false;
+			}
+			if (myLeft == null && node.myLeft != null) {
+				return false;
+			}
+			if (myLeft != null && node.myLeft == null) {
+				return false;
+			}
+			if (myRight == null && node.myRight != null) {
+				return false;
+			}
+			if (myRight != null && node.myRight == null) {
+				return false;
+			}
+			if (myLeft != null && node.myLeft != null) {
+				if (!myLeft.equals(node.myLeft)) {
+					return false;
+				}
+			}
+			if (myRight != null && node.myRight != null) {
+				if (!myRight.equals(node.myRight)) {
+					return false;
+				}
+			}
 			return true;
 		}
 		
 	}
 	
 	public static void main(String[] args){
-		String b ="((a&b)=>c)";
+		String b ="((x&y)=>z)";
+		String c ="((a=>b)=>c)";
 		Expression2 none = new Expression2();
 		Expression2 aa = new Expression2("(a=>b)");
 		System.out.println(aa.myRoot.myItem);
@@ -185,6 +211,12 @@ public class Expression2 {
 		System.out.println(tt.myRoot.myLeft.myLeft.myItem);
 		System.out.println(tt.myRoot.myLeft.myRight.myItem);
 		System.out.println(tt.myRoot.myRight.myItem);
+		Expression2 cc = new Expression2(c);
+		System.out.println(aa.myRoot.equals(cc.myRoot.myLeft));
+		
+		Expression2 testExp1 = new Expression2("((a=>(b|c))=>((d&e)|f))");
+		Expression2 testExp2 = new Expression2("(((a=>(b|c))=>((d&e)|f))=>z)");
+		System.out.println(testExp1.myRoot.equals(testExp2.myRoot.myLeft));
 	}
 	
 	
