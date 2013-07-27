@@ -1,6 +1,159 @@
-public class Expression {
+package proj2;
 
-  public Expression (String s) throws IllegalLineException {
-  
+public class Expression2 {
+	
+	public ExprNode myRoot;
+	public String expression;
+
+	public Expression2(){// throws IllegalLineException{
+		myRoot = null;
+		expression = "";
 	}
+	
+	public Expression2(String s){// throws IllegalLineException {
+		if(isLegal(s)){
+			expression = s;
+			myRoot = new ExprNode(s);
+		}
+	}
+	
+	
+	public boolean isLegal(String s){
+		return true;
+	}
+	
+	public static boolean equals(ExprNode node1, ExprNode node2){
+		if(!node1.myItem.equals(node2)){
+			return false;
+		}
+		if(!node1.myLeft.equals(node2.myLeft)){
+			return false;
+		}
+		if(!node1.myRight.equals(node2.myRight)){
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
+	public String toString() {
+		return expression;
+	}	
+	
+	
+	
+	private static class ExprNode{ //subclass
+		private String myItem;
+		private ExprNode myLeft;
+		private ExprNode myRight;
+		
+		public ExprNode(){
+			myItem = null;
+			myLeft = null;
+			myRight = null;
+		}
+		
+		public ExprNode(String s){
+			myItem = findSymbol(s);
+			myLeft = new ExprNode(findLeft(s));
+			myRight = new ExprNode(findRight(s));
+		}
+		
+		public ExprNode(String s, ExprNode left, ExprNode right){
+			myItem =s;
+			myLeft = left;
+			myRight = right;
+		}
+		
+		public String findSymbol(String s){
+			if(s.length()==0){
+				return "";
+			}
+			if(s.length()==1){
+				return s;
+			}
+			int parenCounter = 0;
+			for(int i = 1; i<s.length()-1; i++){
+				if(s.charAt(i) == '('){
+					parenCounter++;
+				}
+				if(s.charAt(i) == ')'){
+					parenCounter--;
+				}
+				if(parenCounter == 0){
+					if((""+s.charAt(i)+s.charAt(i+1)).equals("=>")){
+						return ""+s.charAt(i)+s.charAt(i+1);
+					}
+					return ""+s.charAt(i+1);
+				}
+			}
+			return "";
+		}
+		
+		public String findLeft(String s){
+			if(s.length()==0){
+				return "";
+			}
+			if(s.length()==1){
+				return "";
+			}
+			int parenCounter = 0;
+			for(int i = 1; i<s.length()-1; i++){
+				
+				if(s.charAt(i) == '('){
+					parenCounter++;
+				}
+				if(s.charAt(i) == ')'){
+					parenCounter--;
+				}
+				if(parenCounter == 0){
+					return s.substring(1, i+1);
+				}
+			}
+			return "";
+		}
+		
+		public String findRight(String s){
+			if(s.length()==0){
+				return "";
+			}
+			if(s.length()==1){
+				return "";
+			}
+			int parenCounter = 0;
+			for(int i = 1; i<s.length()-1; i++){
+				if(s.charAt(i) == '('){
+					parenCounter++;
+				}
+				if(s.charAt(i) == ')'){
+					parenCounter--;
+				}
+				if(parenCounter == 0){
+					if((""+s.charAt(i)+s.charAt(i+1)).equals("=>")){
+						return s.substring(i+2, s.length());
+					}
+					return s.substring(i, s.length());
+				}
+			}
+			return "";
+		}
+		
+		private boolean equals(ExprNode node){
+			return true;
+		}
+		
+	}
+	
+	public static void main(String[] args){
+		String a = "(a=>b)";
+		String b ="((a&b)=>c)";
+		Expression2 none = new Expression2();
+		Expression2 aa = new Expression2(a);
+		System.out.println(none.equals(aa));
+	}
+	
+	
+	
+
 }
