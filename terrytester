@@ -1,4 +1,4 @@
-//EQUALS IS A PLACEHOLDER METHOD! REPLACE WITH SOMETHING TO TRAVERSE THE TREES TO PATTERN MATCH  
+//EQUALS IS A PLACEHOLDER METHOD! REPLACE WITH SOMETHING TO TRAVERSE THE TREES TO PATTERN MATCH	
 		//Use a tree to do the pattern checking
 		//ex: line2.subtree matches with line1.root
 
@@ -13,9 +13,17 @@ public class terrytester {
 		}
 	}
 	
-	public void assume(Expression exp) {
-		currentLineNumber = new LineNumber(exp.value, exp.valueLeft, exp.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
-		System.out.println("Assuming " + exp.value + " is true...");
+	public void assume(Expression exp) throws IllegalInferenceException {
+		try {
+			if (switchSign(exp.value).equals(currentLineNumber.value) || exp.equals(currentLineNumber.valueLeft)) {
+				currentLineNumber = new LineNumber(exp.value, exp.valueLeft, exp.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
+				System.out.println("Assuming " + exp.value + " is true...");
+			} else {
+				throw new IllegalInferenceException("bad inference");
+			}
+		} catch (IllegalInferenceException e) {
+			System.out.println("bad inference!");
+		}
 	}
 	
 	public void mp(LineNumber line1, LineNumber line2, Expression rtn) throws IllegalInferenceException {
@@ -29,7 +37,7 @@ public class terrytester {
 			if (line2.valueLeft.equals(line1.value)) { //Need to write a LineNumber-specific equals method 
 				if (line2.valueRight.equals(rtn.value)) { 
 					//add rtn to arraylist of proven LineNumbers
-					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
 					System.out.println("Result: " + rtn.value + " is true!");
 				} else {
 					throw new IllegalInferenceException("bad inference");
@@ -55,7 +63,7 @@ public class terrytester {
 			if (line2.valueRight.equals(switchSign(line1.value))) {	
 				if (line2.valueLeft.equals(switchSign(rtn.value))) { 
 					//add rtn to arraylist of proven LineNumbers
-					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
 					System.out.println("Result: " + rtn.value + " is true!");
 				} else { 
 					throw new IllegalInferenceException("bad inference");
@@ -80,7 +88,7 @@ public class terrytester {
 			if (line1.isProven && line2.isProven && (switchSign(line1.value)).equals(line2.value)) { //~p, p=>q, q
 				if (rtn.valueLeft.equals(line1.value) || rtn.valueLeft.equals(line2.value)) { 
 					//add rtn to arraylist of proven LineNumbers
-					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
 					System.out.println("Result: " + rtn.value + " is true!");
 				} else {
 					throw new IllegalInferenceException("bad inference");
@@ -100,7 +108,7 @@ public class terrytester {
 			if (line1.isProven) {
 				if (line1.value.equals(rtn.valueRight)) { 
 					//add rtn to arraylist of proven LineNumbers
-					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER
+					currentLineNumber = new LineNumber(rtn.value, rtn.valueLeft, rtn.valueRight); //NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
 					System.out.println("Result: " + rtn.value + " is true!");
 				} else {
 					throw new IllegalInferenceException("bad inference");
