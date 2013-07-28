@@ -1,0 +1,40 @@
+//Nick this toString should work for your tests
+
+public String toStringTreeTraversal() {
+  		String rtn = "";
+			if (myLeft != null && myRight != null && !myItem.equals("~")) {
+				rtn = "(";
+			}
+			if (myLeft != null) {
+				rtn = rtn + myLeft.toStringTreeTraversalHelper();
+			}
+			rtn = rtn + myItem; 
+			if (myRight != null) {
+				rtn = rtn + myRight.toStringTreeTraversalHelper();
+			}
+			if (myLeft != null && myRight != null && !myItem.equals("~")) {
+				rtn = rtn + ")";
+			}
+			return rtn;
+		}
+
+		public String toStringTreeTraversalHelper() {
+			if (myLeft == null && myRight == null) {
+				return myItem;
+			}
+			String rtn = "";
+			if (!myItem.equals("~")) {
+				rtn = "(";
+			}
+			if (myLeft != null) {
+				rtn = rtn + myLeft.toStringTreeTraversalHelper();
+			}
+			rtn = rtn + myItem; 
+			if (myRight != null) {
+				rtn = rtn + myRight.toStringTreeTraversalHelper();
+			}
+			if (!myItem.equals("~")) {
+				rtn = rtn + ")";
+			}
+			return rtn;
+		}
