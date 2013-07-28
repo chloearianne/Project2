@@ -9,13 +9,13 @@ import java.util.*;
 public class Proof2 {
 	private TheoremSet theorems;
 	private String prevReason;
-	SubProof originalProof;
-	SubProof currentProof;
-	String previousReason;
-	ArrayList<SubProof> isProvenGlobal;
-	private LineNumber currentLine;
-	TheoremSet myTheorems;
-	String myLine; //the Line value returned by nextLineNumber, the user still needs to input a value for it
+	private SubProof originalProof;
+	private SubProof currentProof;
+	private String previousReason;
+	private ArrayList<SubProof> isProvenGlobal;
+	private LineNumber currentLineNum;
+	private TheoremSet myTheorems;
+	private Hashtable<String, LineNumber> myLineNums;
 
 	// Construct a proof by setting up the original (root) proof.
 	public Proof2 (TheoremSet theorems) {
@@ -24,10 +24,12 @@ public class Proof2 {
 		isProvenGlobal = new ArrayList<SubProof>();
 		myTheorems = theorems;
 		previousReason = "";
-		currentLine = null;
+		currentLineNum = null;
+		myLineNums = new Hashtable<String, LineNumber>();
 	}
 
 	public String nextLineNumber ( ) {
+		//currentLine = new LineNumber(nextLine)
 		return "";
 	}
 	
@@ -111,41 +113,85 @@ public class Proof2 {
 	}
 	
 	private void show(String exp) throws IllegalInferenceException, IllegalLineException{
+		Expression expression = null;
+		try{
+			expression = new Expression(exp);
+		} catch (IllegalLineException e){
+			throw e;
+		}
+		
 		if (originalProof == null){
-			originalProof = new SubProof(expression, null, new LineNumber(currentLine));
+			originalProof = new SubProof(expression, null, currentLineNum);
 			currentProof = originalProof;
 		} else{
-			SubProof child = new SubProof(expression, currentProof, new LineNumber(currentLine));
+			SubProof child = new SubProof(expression, currentProof, currentLineNum);
 			currentProof.addChildProof(child);
 		}
 	}
 	
 	private void theorem(String thm, String exp) throws IllegalInferenceException, IllegalLineException{
-		if (theorems.validTheorem(reason, expression)){
-			currentProof.assumptions.put(currentLine, expression);
+		Expression expression = null;
+		try{
+			expression = new Expression(exp);
+		} catch (IllegalLineException e){
+			throw e;
+		}
+		if (theorems.validTheorem(thm, expression)){
+			currentProof.assumptions.put(currentLineNum, expression);
 		} else{
 			throw new IllegalInferenceException("Improper use of a theorem, variables used incorrectly");
 		}
 	}
 	
 	private void repeat(String lineNum, String exp) throws IllegalInferenceException, IllegalLineException{
-		LineNumber line = null;
-		Expression myExp = null;
+		Expression expression = null;
 		try{
-			line = lineNums.get(lineNum);
-			myExp = new Expression(exp);
-		} catch(ILlegalLineException e){
-			throw e
+			expression = new Expression(exp);
+		} catch(IllegalLineException e){
+			throw e;
 		}
-		if (currentProof.assumptions.contains(myLine) || isProvenGlobal.contains(myLine)){
-			//do stuff
+		LineNumber line = myLineNums.get(lineNum);
+		if(line == null){
+			throw new IllegalLineException(lineNum + " is not a valid line number");
 		}
 		
-		throw new IllegalInferenceException("cannot access " + line + " in call to repeat")
+		if (currentProof.assumptions.contains(line) || isProvenGlobal.contains(line)){
+			currentProof.assumptions.put(currentLineNum, expression);
+		}
+		
+		throw new IllegalInferenceException("cannot access " + line + " in call to repeat");
 	}
 	
+	public static String switchSign(String s) {
+		if (s.substring(0,1).equals("~")) {
+			return s.substring(1, s.length());
+		} else {
+			return "~" + s;
+		}
+	}
+
+	public void assume(String exp) throws IllegalInferenceException {
+		//fill in
+	}
+
+	public void mp(String line1, String line2, String rtnString) throws IllegalInferenceException, IllegalLineException {
+		//fill
+	}
+
+	public void mt(String line1, String line2, String rtnString) throws IllegalInferenceException { //says String but it should say Expression
+		//fill
+	}
+
+	public void co(String line1, String line2, String rtn) throws IllegalInferenceException {
+		//fill
+	}
 	
-	public String toString ( ) {
+	public void ic(String line1, String rtn) throws IllegalInferenceException {
+		//fill
+	}	
+	
+	
+	public String toString () {
 		if (!(originalProof == null)) {
 			return toStringHelper(originalProof);
 		}
