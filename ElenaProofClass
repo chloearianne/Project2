@@ -1,33 +1,43 @@
 import java.util.*;
 
-public class Proof {
-  private TheoremSet theorems;
-	private boolean originalTheoremInit = false;
+/*
+	calls to mp, mt, repeat, ect. must take in strings and use try catches to see if they're valid
+	must also extend the proof inside mp/mt, because if an exception isn't thrown then the reason is true
+*/
+
+
+public class Proof2 {
+	private TheoremSet theorems;
 	private String prevReason;
-	SubProof originalProof = null;
+	SubProof originalProof;
 	SubProof currentProof;
 	String previousReason;
 	ArrayList<SubProof> isProvenGlobal;
+	private LineNumber currentLine;
 	TheoremSet myTheorems;
-	int step;
+	String myLine; //the Line value returned by nextLineNumber, the user still needs to input a value for it
 
 	// Construct a proof by setting up the original (root) proof.
-	public Proof (TheoremSet theorems) {
-		originalProof = new SubProof(null, null, new LineNumber(0));
+	public Proof2 (TheoremSet theorems) {
+		originalProof = null;
 		currentProof = originalProof;
 		isProvenGlobal = new ArrayList<SubProof>();
 		myTheorems = theorems;
 		previousReason = "";
+		currentLine = null;
 	}
 
-	public LineNumber nextLineNumber ( ) {
-		if (!(originalProof == null)) {
-			LineNumber myLine = new LineNumber();
-			return myLine;
-		}
-		return null;
+	public String nextLineNumber ( ) {
+		return "";
 	}
 	
+	//need to break this up into smaller methods
+	//limit per method is 100 lines
+	//fuuuuck
+	
+	private static String[] validReasons = {"print","show","repeat","ic","co","mt","mp"};
+
+
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
 		if (x == null){
 			throw new IllegalLineException("Cannot input a null value");
@@ -42,85 +52,98 @@ public class Proof {
 			myWords.add(expScanner.next());
 		}
 		
-		String reason = myWords.get(0);			//the reason should always be the first argument		
-		if(myWords.size() == 1){				//only print statements can stand alone
-			if (reason.equals("print")){
-				System.out.println(this);
-				return;
-			} else{
-				throw new IllegalLineException("A reason should be followed by at least an expression");
-			}
-		} else if(myWords.size() == 2){			//must be a length 2 to be a valid use of show, assume, or theorem
-			if (reason.equals("show")){			//ie. only one expression follows the reason
-				if (originalProof == null){
-					originalProof = new SubProof(expression, null, new LineNumber(currentLine));
-					currentProof = originalProof;
+		//general try catch statement to handle exceptions when calling outside helper methods
+		//ie. if calls to assume, repeat, mt, mc, ect. throw an exception
+		try{		
+			String reason = myWords.get(0);			
+			if(myWords.size() == 1){				//only print statements can stand alone
+				if (reason.equals("print")){
+					System.out.println(this);
+					return;
 				} else{
-					SubProof child = new SubProof(expression, currentProof, new LineNumber(currentLine));
-					currentProof.addChildProof(child);
+					throw new IllegalLineException("A reason should be followed by at least an expression");
 				}
-			} else if (reason.equals("assume")){				//handles assume
-				if (!prevReason.equals("show")){
-					throw new IllegalLineException("An assume can only follow a show");
+			} else if(myWords.size() == 2){			//must be a length 2 to be a valid use of show, assume, or theorem
+				if (reason.equals("show")){			//ie. only one expression follows the reason
+					show(myWords.get(1));
+				} else if (reason.equals("assume")){				//handles assume
+					if (!prevReason.equals("show")){
+						throw new IllegalLineException("An assume can only follow a show");
+					} else{
+						assume(myWords.get(1));
+					}
+				} else if (theorems.hasTheorem(reason)){			//handles theorem use
+					theorem(reason, myWords.get(1));
 				} else{
-					assume(myWords.get(1));
+					throw new IllegalLineException(reason + " is not a valid theorem or has an incorrect number of arguments");
 				}
-			} else if (theorems.hasTheorem(reason)){			//handles theorem use
-				if (theorems.validTheorem(reason, expression)){
-					currentProof.assumptions.put(currentLine, expression);
-				} else{
-					throw new IllegalInferenceException("Improper use of a theorem, variables used incorrectly");
-				}
-			} else{
-				throw new IllegalLineException(reason + " is not a valid theorem or has an incorrect number of arguments");
-			}
-		} else if (myWords.size() == 3){
-			if (reason.equals("repeat")){					//handles repeat, if repeat errors, pass it on
-				try{
+			} else if (myWords.size() == 3){
+				if (reason.equals("repeat")){					//handles repeat, if repeat errors, pass it on
 					repeat(myWords.get(1), myWords.get(2));
-				} catch (Exception e){
-					throw e;
-				} 
-			}
-			else if (reason.equals("ic")){					//handles ic
-				try{
+				}
+				else if (reason.equals("ic")){					//handles ic
 					ic(myWords.get(1), myWords.get(2));
-				} catch (Exception e){
-					throw e;
-				} 
-			} else{
-				throw new IllegalLineException("Only repeat and ic take in 2 arguments");
-			}			
-		} else if(myWords.size() == 4){
-			if (reason.equals("mp")){
-				try{
+				} else{
+					throw new IllegalLineException("Only repeat and ic take in 2 arguments");
+				}			
+			} else if(myWords.size() == 4){
+				if (reason.equals("mp")){
 					mp(myWords.get(1), myWords.get(2), myWords.get(3));
-				} catch (Exception e){
-					throw e;
 				}
-			}
-			else if (reason.equals("mt")){
-				try{
+				else if (reason.equals("mt")){
 					mt(myWords.get(1), myWords.get(2), myWords.get(3));
-				} catch (Exception e){
-					throw e;
-				}	
-			}
-			else if (reason.equals("co")){
-				try{
-					co(myWords.get(1), myWords.get(2), myWords.get(3));
-				} catch (Exception e){
-					throw e;
 				}
-			} else{
-				throw new IllegalLineException(reason + " does not take in 3 arguments");
+				else if (reason.equals("co")){
+					co(myWords.get(1), myWords.get(2), myWords.get(3));
+				} else{
+					throw new IllegalLineException(reason + " does not take in 3 arguments");
+				}
+			} else {
+				throw new IllegalLineException("There can never be more than 3 arguments for a reason");
 			}
-		} else {
-			throw new IllegalLineException("There can never be more than 3 arguments for a reason");
+			//if it hasn't thrown an exception, then the reason has been validly used
+			prevReason = reason;
+		} catch (IllegalLineException e){
+			throw e;
+		} catch (IllegalInferenceException e){
+			throw e;
 		}
-		//if it hasn't thrown an exception, then the reason has been validly used
-		prevReason = reason;
 	}
+	
+	private void show(String exp) throws IllegalInferenceException, IllegalLineException{
+		if (originalProof == null){
+			originalProof = new SubProof(expression, null, new LineNumber(currentLine));
+			currentProof = originalProof;
+		} else{
+			SubProof child = new SubProof(expression, currentProof, new LineNumber(currentLine));
+			currentProof.addChildProof(child);
+		}
+	}
+	
+	private void theorem(String thm, String exp) throws IllegalInferenceException, IllegalLineException{
+		if (theorems.validTheorem(reason, expression)){
+			currentProof.assumptions.put(currentLine, expression);
+		} else{
+			throw new IllegalInferenceException("Improper use of a theorem, variables used incorrectly");
+		}
+	}
+	
+	private void repeat(String lineNum, String exp) throws IllegalInferenceException, IllegalLineException{
+		LineNumber line = null;
+		Expression myExp = null;
+		try{
+			line = lineNums.get(lineNum);
+			myExp = new Expression(exp);
+		} catch(ILlegalLineException e){
+			throw e
+		}
+		if (currentProof.assumptions.contains(myLine) || isProvenGlobal.contains(myLine)){
+			//do stuff
+		}
+		
+		throw new IllegalInferenceException("cannot access " + line + " in call to repeat")
+	}
+	
 	
 	public String toString ( ) {
 		if (!(originalProof == null)) {
