@@ -94,6 +94,18 @@ public class Expression {
 			throw new IllegalLineException("Your line is just wrong, fix it before you try again, thanks and have a nice day.");
 			
 		}
+		
+		public String getMyItem(){ //getter for myItem
+			return myItem;
+		}
+		
+		public ExprNode getMyLeft(){ //getter for myLeft
+			return myLeft;
+		}	
+		
+		public ExprNode getMyRight(){ //getter for myRight
+			return myRight;
+		}	
 
 		
 		/*
