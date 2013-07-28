@@ -1,0 +1,253 @@
+package proj2;
+public class Expression {
+
+  public ExprNode myRoot;
+	public String expression;
+
+	public Expression(String s) throws IllegalLineException {
+		expression = s;
+		try{
+			myRoot = new ExprNode(s);
+		} catch(IllegalLineException e) {
+			throw new IllegalLineException(e.getMessage());
+		}
+	}
+
+
+	public boolean isLegal(String s){
+		return true;
+	}
+
+
+	public String toString() {
+		return expression;
+	}	
+
+
+
+	private static class ExprNode{ //subclass
+		private String myItem;
+		private boolean isTilde = false;
+		private ExprNode myLeft;
+		private ExprNode myRight;
+
+		public ExprNode(){
+			myItem = null;
+			myLeft = null;
+			myRight = null;
+		}
+
+		private static boolean isLetter(char ch){
+			if(((ch -'0') > 48) && ((ch - '0') < 75)){ //values for letters
+				return true;
+			}
+			return false;
+		}
+		
+		public ExprNode(String s) throws IllegalLineException{
+			System.out.println(s);
+			if(s.length()==0){
+				throw new IllegalLineException("Expression should not be null.");
+			}
+			if(s.length()==1){
+				if(s.matches("[a-z]")){
+					System.out.println("in if" + s);
+					myItem = s;
+					myLeft = null;
+					myRight = null;
+					return;
+				} else {
+					throw new IllegalLineException("Invalid Character Use");
+				}	
+			}
+			if(s.charAt(0) == '~' && (s.length() > 1)){
+				myItem = "~";
+				try{
+					myLeft = new ExprNode(s.substring(1));
+				} catch (Exception e){
+					throw new IllegalLineException(e.getMessage());
+				}
+				
+				return;
+			} 
+			if (s.charAt(0) == '(' && s.charAt(s.length() - 1) == ')') {
+				try{
+					String[] sym = findSymbol(s);
+					myItem = sym[1];
+					//System.out.println("found " + myItem);
+					//System.out.println(sym[0]);
+					myLeft = new ExprNode(s.substring(1, Integer.parseInt(sym[0])));
+					//System.out.println("hello");
+					if(sym[1].equals("=>")){
+						//System.out.println("found =>");
+						myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+2, s.length()-1));
+					} else{
+						myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+1, s.length()-1));
+					}
+				} catch (Exception e) {
+					throw new IllegalLineException(e.getMessage());
+				}
+				
+				return;
+			}
+			throw new IllegalLineException("Your line is just wrong, fix it before you try again, thanks and have a nice day.");
+			
+		}
+
+		public String[] findSymbol(String s) throws IllegalLineException{
+			int parenCounter = 0;
+			for(int i = 1; i<s.length()-1; i++){
+				if(s.charAt(i) == '('){
+					parenCounter++;
+				}
+				if(s.charAt(i) == ')'){
+					parenCounter--;
+				}
+				if(parenCounter == 0){
+					if (s.charAt(i) == '~') {
+						continue;
+					}
+					if (s.charAt(i+1) == '&') {
+						return new String[] {(i+1)+"", "&"};
+					}
+					if(s.charAt(i+1) == '|'){
+						return new String[] {(i+1)+"", "|"};
+					}
+					if((i+2<s.length()-1) && (""+s.charAt(i+1)+s.charAt(i+2)).equals("=>")){
+						return new String[] {(i+1)+"", "=>"};
+					}
+					//throw new IllegalLineException("No {|, &, =>} found.");
+				} else if (parenCounter < 0){
+					throw new IllegalLineException("Incorrect parentheses use.");
+				}
+			}
+			throw new IllegalLineException("No {|, &, =>} found.");
+		}
+
+		
+
+		private boolean equals(ExprNode node){
+			if (!myItem.equals(node.myItem)) {
+				return false;
+			}
+			if (isTilde != (node.isTilde)) {
+				return false;
+			}
+			if (myLeft == null && node.myLeft != null) {
+				return false;
+			}
+			if (myLeft != null && node.myLeft == null) {
+				return false;
+			}
+			if (myRight == null && node.myRight != null) {
+				return false;
+			}
+			if (myRight != null && node.myRight == null) {
+				return false;
+			}
+			if (myLeft != null && node.myLeft != null) {
+				if (!myLeft.equals(node.myLeft)) {
+					return false;
+				}
+			}
+			if (myRight != null && node.myRight != null) {
+				if (!myRight.equals(node.myRight)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		public String toString() {
+			String rtn = "(";
+			if (myLeft != null) {
+				rtn = rtn + myLeft.toStringHelper();
+			}
+			if (isTilde == true) {
+				rtn = rtn + "~";
+			}
+			rtn = rtn + myItem; 
+			if (myRight != null) {
+				rtn = rtn + myRight.toStringHelper();
+			}
+			rtn = rtn + ")";
+			return rtn;
+		}
+
+		public String toStringHelper() {
+			if (myLeft == null && myRight == null) {
+				return myItem;
+			}
+			String rtn = "(";
+			if (myLeft != null) {
+				rtn = rtn + myLeft.toStringHelper();
+			}
+			if (isTilde == true) {
+				rtn = rtn + "~";
+			}
+			rtn = rtn + myItem; 
+			if (myRight != null) {
+				rtn = rtn + myRight.toStringHelper();
+			}
+			rtn = rtn + ")";
+			return rtn;
+		}
+
+	}
+
+	public static void main(String[] args){
+		String b ="((x&y)=>z)";
+		String c ="((a=>b)=>c)";
+		try{
+			Expression aa = new Expression("(m=>()ljkb)");
+			System.out.println(aa.myRoot.toString());
+		} catch (IllegalLineException e){
+			System.out.println(e.getMessage());
+			System.out.println("failed");
+		}
+		/*//System.out.println(aa.myRoot.myItem);
+		//System.out.println(aa.myRoot.myLeft.myItem);
+		//System.out.println(aa.myRoot.myRight.myItem);
+		//System.out.println(none.equals(aa));
+		Expression3 tt = new Expression3(b);
+		//System.out.println(tt.myRoot.myItem);
+		//System.out.println(tt.myRoot.myLeft.myItem);
+		//System.out.println(tt.myRoot.myLeft.myLeft.myItem);
+		//System.out.println(tt.myRoot.myLeft.myRight.myItem);
+		//System.out.println(tt.myRoot.myRight.myItem);
+		Expression3 cc = new Expression3(c);
+		//System.out.println(aa.myRoot.equals(cc.myRoot.myLeft));
+
+		Expression3 testExp1 = new Expression3("((a=>(b|c))=>((d&e)|f))");
+		Expression3 testExp2 = new Expression3("(((a=>(b|c))=>((d&e)|f))=>z)");
+		System.out.println(testExp1.myRoot.equals(testExp2.myRoot));
+		System.out.println(testExp1.myRoot.equals(testExp2.myRoot.myLeft));
+		System.out.println(testExp2.toString());
+
+		Expression3 tilde1 = new Expression3("~p");
+		Expression3 tilde2 = new Expression3("(~p=>~q)");
+		Expression3 tilde3 = new Expression3("~(p=>q)");
+		Expression3 tilde4 = new Expression3("(~(~p=>~q)=>~(~(~z&~x)=>~x))");
+		Expression3 tilde5 = new Expression3("~(a=>(~(~p=>~q)=>~(~(~z&~x)=>~x)))");
+		System.out.println(tilde1.myRoot.myItem);
+		System.out.println(tilde2.myRoot.myItem);
+		System.out.println(tilde2.myRoot.myLeft.myItem);
+		System.out.println(tilde2.myRoot.myRight.myItem);
+		System.out.println(tilde3.myRoot.myItem);
+		System.out.println(tilde3.myRoot.myLeft.myItem);
+		System.out.println(tilde3.myRoot.myRight.myItem);
+		System.out.println(tilde3.myRoot.isTilde);
+		System.out.println(tilde4.myRoot.myItem);
+		System.out.println(tilde4.myRoot.myLeft.myItem);
+		System.out.println(tilde4.myRoot.myRight.myItem);
+		System.out.println(tilde4.myRoot.isTilde);
+		System.out.println(tilde4.myRoot.myRight.isTilde);
+		System.out.println(tilde4.myRoot.myLeft.isTilde);
+		System.out.println(tilde4.myRoot.equals(tilde5.myRoot.myRight));
+		System.out.println(tilde1.toString());
+		System.out.println(tilde2.toString());
+		System.out.println(tilde3.toString());
+		System.out.println(tilde4.toString());
+		System.out.println(tilde5.toString()); */
+	}
+}	
