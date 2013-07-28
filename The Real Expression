@@ -13,10 +13,40 @@ public class Expression {
 		}
 	}
 
-
-	public boolean isLegal(String s){
+	public static boolean equals(Expression a, Expression b) {
+		return a.myRoot.equals(b.myRoot);
+	}
+	
+	public static boolean isLegal(String s){
 		return true;
 	}
+	
+/* //I don't think these are needed
+	public String value() {
+		return myRoot.myItem;
+	}
+	
+	public String valueLeft() {
+		return myRoot.myLeft.myItem;
+	}
+	
+	public String valueRight() {
+		return myRoot.myRight.myItem;
+	}
+*/
+	
+	public ExprNode node() {
+		return myRoot;
+	}
+	
+	public ExprNode nodeLeft() {
+		return myRoot.myLeft;
+	}
+	
+	public ExprNode nodeRight() {
+		return myRoot.myRight;
+	}
+
 
 
 	public String toString() {
@@ -25,7 +55,7 @@ public class Expression {
 
 
 
-	private static class ExprNode{ //subclass
+	public static class ExprNode{ //subclass
 		private String myItem;
 		private boolean isTilde = false;
 		private ExprNode myLeft;
@@ -45,13 +75,11 @@ public class Expression {
 		}
 		
 		public ExprNode(String s) throws IllegalLineException{
-			System.out.println(s);
 			if(s.length()==0){
 				throw new IllegalLineException("Expression should not be null.");
 			}
 			if(s.length()==1){
 				if(s.matches("[a-z]")){
-					System.out.println("in if" + s);
 					myItem = s;
 					myLeft = null;
 					myRight = null;
@@ -63,7 +91,7 @@ public class Expression {
 			if(s.charAt(0) == '~' && (s.length() > 1)){
 				myItem = "~";
 				try{
-					myLeft = new ExprNode(s.substring(1));
+					myRight = new ExprNode(s.substring(1));
 				} catch (Exception e){
 					throw new IllegalLineException(e.getMessage());
 				}
@@ -126,7 +154,7 @@ public class Expression {
 
 		
 
-		private boolean equals(ExprNode node){
+		public boolean equals(ExprNode node){
 			if (!myItem.equals(node.myItem)) {
 				return false;
 			}
@@ -159,7 +187,10 @@ public class Expression {
 		}
 
 		public String toString() {
-			String rtn = "(";
+			String rtn = "";
+			if (myLeft != null && myRight != null && !myItem.equals("~")) {
+				rtn = "(";
+			}
 			if (myLeft != null) {
 				rtn = rtn + myLeft.toStringHelper();
 			}
@@ -170,7 +201,9 @@ public class Expression {
 			if (myRight != null) {
 				rtn = rtn + myRight.toStringHelper();
 			}
-			rtn = rtn + ")";
+			if (myLeft != null && myRight != null && !myItem.equals("~")) {
+				rtn = rtn + ")";
+			}
 			return rtn;
 		}
 
@@ -178,7 +211,10 @@ public class Expression {
 			if (myLeft == null && myRight == null) {
 				return myItem;
 			}
-			String rtn = "(";
+			String rtn = "";
+			if (!myItem.equals("~")) {
+				rtn = "(";
+			}
 			if (myLeft != null) {
 				rtn = rtn + myLeft.toStringHelper();
 			}
@@ -189,22 +225,17 @@ public class Expression {
 			if (myRight != null) {
 				rtn = rtn + myRight.toStringHelper();
 			}
-			rtn = rtn + ")";
+			if (!myItem.equals("~")) {
+				rtn = ")";
+			}
 			return rtn;
 		}
-
+	
 	}
 
+
 	public static void main(String[] args){
-		String b ="((x&y)=>z)";
-		String c ="((a=>b)=>c)";
-		try{
-			Expression aa = new Expression("(m=>()ljkb)");
-			System.out.println(aa.myRoot.toString());
-		} catch (IllegalLineException e){
-			System.out.println(e.getMessage());
-			System.out.println("failed");
-		}
+
 		/*//System.out.println(aa.myRoot.myItem);
 		//System.out.println(aa.myRoot.myLeft.myItem);
 		//System.out.println(aa.myRoot.myRight.myItem);
@@ -249,5 +280,16 @@ public class Expression {
 		System.out.println(tilde3.toString());
 		System.out.println(tilde4.toString());
 		System.out.println(tilde5.toString()); */
+		String b ="((x&y)=>z)";
+		String c ="((a=>b)=>c)";
+		try{
+			Expression aa = new Expression("(~~~~p=>~q)");
+			System.out.println(aa.value());
+			System.out.println(aa.myRoot.myLeft.toString());
+			
+		} catch (IllegalLineException e){
+			System.out.println(e.getMessage());
+			System.out.println("failed");
+		}
 	}
 }	
