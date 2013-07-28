@@ -25,21 +25,7 @@ public class Expression3 {
 	public boolean isLegal(String s){
 		return true;
 	}
-	
-/*
-	public static boolean equals(ExprNode node1, ExprNode node2){
-		if(!node1.myItem.equals(node2)){
-			return false;
-		}
-		if(!node1.myLeft.equals(node2.myLeft)){
-			return false;
-		}
-		if(!node1.myRight.equals(node2.myRight)){
-			return false;
-		}
-		return true;
-	}
-*/	
+		
 	
 	public String toString() {
 		return expression;
