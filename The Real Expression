@@ -37,11 +37,14 @@ public class Expression {
 		private String myItem;
 		private ExprNode myLeft;
 		private ExprNode myRight;
+		private String myString;
+
 
 		public ExprNode(){ //blank expression
 			this.myItem = null;
 			this.myLeft = null;
 			this.myRight = null;
+			this.myString = null;
 		}
 		
 		
@@ -52,6 +55,7 @@ public class Expression {
 		 */
 		
 		public ExprNode(String s) throws IllegalLineException{
+			this.myString = s;
 			if(s.length()==0){ //null String
 				throw new IllegalLineException("Expression should not be null.");
 			}
@@ -176,51 +180,9 @@ public class Expression {
 			}
 			return true;
 		}
-
-		/*
-		 * Precondition: a correct string.
-		 * 
-		 * It should traverse through the expression's nodes 
-		 * and return a string representing the makeup of the nodes
-		 * 
-		 */
-		public String toString() {
-			String rtn = "";
-			if (myLeft != null && myRight != null && !myItem.equals("~")) { // ignore printing parens if '~' or if single variable
-				rtn = "(";
-			}
-			if (myLeft != null) {
-				rtn = rtn + myLeft.toStringHelper(); //recursive call to myLeft
-			}
-			rtn = rtn + myItem; 
-			if (myRight != null) {
-				rtn = rtn + myRight.toStringHelper(); //recursive call to myRight
-			}
-			if (myLeft != null && myRight != null && !myItem.equals("~")) { // ignore printing parens if '~' or if single variable
-				rtn = rtn + ")";
-			}
-			return rtn;
-		}
-
-		public String toStringHelper() {
-			if (myLeft == null && myRight == null) { //if there is no more children, just print myItem.
-				return myItem;
-			}
-			String rtn = "";
-			if (!myItem.equals("~")) { // ignore printing parens if '~'
-				rtn = "(";
-			}
-			if (myLeft != null) {
-				rtn = rtn + myLeft.toStringHelper(); //recursive call to myLeft
-			}
-			rtn = rtn + myItem; 
-			if (myRight != null) {
-				rtn = rtn + myRight.toStringHelper(); // recursive call to myRight
-			}
-			if (!myItem.equals("~")) { // ignore printing parens if '~'
-				rtn = ")";
-			}
-			return rtn;
+		
+		public String toString(){
+			return this.myString;
 		}
 
 	}
