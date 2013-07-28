@@ -39,9 +39,9 @@ public class Expression {
 		private ExprNode myRight;
 
 		public ExprNode(){ //blank expression
-			myItem = null;
-			myLeft = null;
-			myRight = null;
+			this.myItem = null;
+			this.myLeft = null;
+			this.myRight = null;
 		}
 		
 		
@@ -57,9 +57,9 @@ public class Expression {
 			}
 			if(s.length()==1){ //length 1 can only be a lower-case letter
 				if(s.matches("[a-z]")){ //lower-case
-					myItem = s;
-					myLeft = null;
-					myRight = null;
+					this.myItem = s;
+					this.myLeft = null;
+					this.myRight = null;
 					return;
 				} else {
 					throw new IllegalLineException("Invalid Character Use");
@@ -96,15 +96,15 @@ public class Expression {
 		}
 		
 		public String getMyItem(){ //getter for myItem
-			return myItem;
+			return this.myItem;
 		}
 		
 		public ExprNode getMyLeft(){ //getter for myLeft
-			return myLeft;
+			return this.myLeft;
 		}	
 		
 		public ExprNode getMyRight(){ //getter for myRight
-			return myRight;
+			return this.myRight;
 		}	
 
 		
