@@ -13,8 +13,6 @@ public class Proof {
 	private String previousReason;
 	private Hashtable<String, LineNumber> isTrueGlobal;
 	private LineNumber currentLineNum;
-	private LineNumber previousLineNum;
-	private TheoremSet myTheorems;
 
 	// Takes in a theoremset of theorems
 	// Constructs a proof by initializing all the variables to a null value
@@ -22,48 +20,46 @@ public class Proof {
 		originalProof = null;
 		currentProof = originalProof;
 		isTrueGlobal = new Hashtable<String, LineNumber>();
-		myTheorems = theorems;
+		this.theorems = theorems;
 		previousReason = "";
 		currentLineNum = null;
 	}
 
 	// set up the next line number for nextLineNumber to return at the beginning of the 
-		// next step's call.
-		public LineNumber nextLineNumber ( ) {
-			LineNumber nextLine;
-			LineNumber tempLine = new LineNumber();
-			tempLine = currentLineNum;
-			// if we're starting a new subproof, create a copy of the current line, add a ".0" for a placeholder
-			// and call a new line number using that
-			if (previousReason.equals("show")) {
-				tempLine.myString += ".0";
-				nextLine = new LineNumber(tempLine, true);
-			// if we're about to exit a subproof (the current proof just finished), then create a copy of the 
-			// current line, subtract the last number and its point, and call a new line number using that
-			} else if (isProvenGlobal.contains(currentProof)){
-				tempLine.step = currentProof.myLineNumber.step;
-				int tempLength = tempLine.myString.length();
-				if (tempLine.step >= 10) {
-					tempLine.myString = tempLine.myString.substring(0, tempLength - 3);
-				} else if (tempLine.step >= 100) {
-					tempLine.myString = tempLine.myString.substring(0, tempLength - 4);
-				} else {
-					if (tempLength > 1) {
-						tempLine.myString = tempLine.myString.substring(0, tempLength - 2);
-					}
-				}
-				nextLine = new LineNumber(tempLine, false);
-			// if we're simply continuing a proof, then call a new line number on the current line.
+	// next step's call.
+	public LineNumber nextLineNumber ( ) {
+		LineNumber nextLine;
+		LineNumber tempLine = currentLineNum;
+		// if we're starting a new subproof, create a copy of the current line, add a ".0" for a placeholder
+		// and call a new line number using that
+		if (previousReason.equals("show")) {
+			tempLine.myString += ".0";
+			nextLine = new LineNumber(tempLine, true);
+		// if we're about to exit a subproof (the current proof just finished), then create a copy of the 
+		// current line, subtract the last number and its point, and call a new line number using that
+		} else if (isTrueGlobal.contains(currentProof.myLineNumber)){
+			tempLine.step = currentProof.myLineNumber.step;
+			int tempLength = tempLine.myString.length();
+			if (tempLine.step >= 10) {
+				tempLine.myString = tempLine.myString.substring(0, tempLength - 3);
+			} else if (tempLine.step >= 100) {
+				tempLine.myString = tempLine.myString.substring(0, tempLength - 4);
 			} else {
-				nextLine = new LineNumber(currentLineNum, false);
+				if (tempLength > 1) {
+					tempLine.myString = tempLine.myString.substring(0, tempLength - 2);
+				}
 			}
-			// set the current line to be proven locally, set previousLine to this one, and set currentLine
-			// to the nextLine we just created.
-			currentLineNum.isProven = true;
-			previousLine = currentLineNum;
-			currentLineNum = nextLine;
-			return currentLineNum;
+			nextLine = new LineNumber(tempLine, false);
+		// if we're simply continuing a proof, then call a new line number on the current line.
+		} else {
+			nextLine = new LineNumber(currentLineNum, false);
 		}
+		// set the current line to be proven locally, set previousLine to this one, and set currentLine
+		// to the nextLine we just created.
+		currentLineNum.setIsProven(true);
+		currentLineNum = nextLine;
+		return currentLineNum;
+	}
 		
 		
 
@@ -143,6 +139,7 @@ public class Proof {
 			}
 			//if it hasn't thrown an exception, then the reason has been validly used
 			prevReason = reason;
+			currentProof.everythingSoFar.add(currentLineNum.myString + x);
 			if (currentProof.isProven()){
 				currentLineNum.setExp(currentProof.myExpression);
 				isTrueGlobal.put(currentLineNum.toString(), currentLineNum);
@@ -422,7 +419,7 @@ public class Proof {
 		SubProof lastProof = originalProof.childProofs.get(sizeOfChildren - 1);
 		Expression lastExpr = lastProof.myExpression;
 		String lastString = lastExpr.toString();
-		return lastString.equals(firstString) && lastProof.myLineNumber.isProven;
+		return lastString.equals(firstString) && lastProof.myLineNumber.getIsProven();
 		
 	}
 	
@@ -449,7 +446,7 @@ public class Proof {
 			myExpression = expr;
 			myLineNumber = line;
 			assumptions = new Hashtable<String, LineNumber>();
-			
+			everythingSoFar = new ArrayList<String>();
 		}
 
 		public boolean hasParent () {
@@ -466,43 +463,6 @@ public class Proof {
 
 		public boolean isProven() {
 			return myExpression.equals(childProofs.get(childProofs.size()).myExpression);
-		}
-	}
-	
-	public static void main(String[] args) throws IllegalInferenceException {
-		TheoremSet theoremSet = null;
-		Proof terry = new Proof(theoremSet);
-		try {
-		String exp1 = "~~~p";
-		String exp2 = "(~~~p=>~q)";
-		String str1 = "~q";
-		Expression exp4 = new Expression("((x=>y)=>z)");
-		Expression exp5 = new Expression("(x=>y)");
-		String str2 = "z";
-		Expression exp6 = new Expression("~q");
-		Expression exp7 = new Expression("(p=>q)");
-		String str3 = "~p";
-		Expression exp8 = new Expression("c");
-		Expression exp9 = new Expression("((p&~q)=>~c)");
-		String str4 = "~(p&~q)";
-		Expression exp10 = new Expression("a");
-		Expression exp11 = new Expression("~a");
-		String str5 = "(a=>b)";
-		Expression exp20 = new Expression("~(x=>(y&z))");
-		String str8 = "(z=>~(x=>(y&z)))";
-		terry.mp(exp1, exp2, str1);
-		//System.out.println("");
-		//terry.mp(exp4, exp5, str2);
-		//System.out.println("");
-		//terry.mt(exp6, exp7, str3);
-		//System.out.println("");
-		//terry.mt(exp8, exp9, str4);
-		//System.out.println("");
-		//terry.co(exp10, exp11, str5);
-		//terry.mp(exp4, exp1, exp6);
-		//terry.ic(exp7, exp8);
-		} catch (IllegalLineException e) {
-			System.out.println("error with lines");
 		}
 	}
 }
