@@ -1,16 +1,20 @@
-//I MADE CONSTRUCTOR WORK AND I WROTE WORKING EQUALS AND TOSTRING METHODS, EXCEPT IT DOESN'T HANDLE TILDES -Terry
+//I REVAMPED THE CONSTRUCTOR AND WROTE TOSTRING AND EQUALS METHODS AND IT SHOULD SUPPORT TILDES, HADN'T FOUND A PROBLEM SO FAR -Terry
 
-public class Expression2 {
+//Also, tildes on variables are placed in myItem (ex: "~a"), 
+//while tildes on expressions [ex: "~(a=>b)"] set the isTilde boolean to TRUE, and the code support it. 
+//-Terry
+
+public class Expression3 {
 	
 	public ExprNode myRoot;
 	public String expression;
 
-	public Expression2(){// throws IllegalLineException{
+	public Expression3(){// throws IllegalLineException{
 		myRoot = null;
 		expression = "";
 	}
 	
-	public Expression2(String s){// throws IllegalLineException {
+	public Expression3(String s){// throws IllegalLineException {
 		if(isLegal(s)){
 			expression = s;
 			myRoot = new ExprNode(s);
@@ -35,8 +39,7 @@ public class Expression2 {
 		}
 		return true;
 	}
-*/
-	
+*/	
 	
 	public String toString() {
 		return expression;
@@ -46,6 +49,7 @@ public class Expression2 {
 	
 	private static class ExprNode{ //subclass
 		private String myItem;
+		private boolean isTilde = false;
 		private ExprNode myLeft;
 		private ExprNode myRight;
 		
@@ -53,19 +57,34 @@ public class Expression2 {
 			myItem = null;
 			myLeft = null;
 			myRight = null;
+			isTilde = false;
 		}
 		
 		public ExprNode(String s){
 			if(s.length()==0){
 				myItem = "";
 			}
-			if(s.length()==1){
+			if(s.length()==1 && !s.equals("~")){
 				myItem = s;
 			}
-			if (s.length() > 1) {
+			if(s.length()==2 && s.charAt(0) == '~'){
+				myItem = s;
+			}
+			if (s.length()>1 && s.charAt(0) != '~') {
 				myItem = findSymbol(s);
-				myLeft = new ExprNode(findLeft(s)); //this keeps on calling without knowing if it should be called or not.
+				if (myItem.charAt(0) == '~') {
+					isTilde = true;
+				}
+				myLeft = new ExprNode(findLeft(s)); 
 				myRight = new ExprNode(findRight(s));
+			}
+			
+			if (s.length()>2 && s.charAt(0) == '~') {
+				isTilde = true;
+				String s2 = s.substring(1, s.length());
+				myItem = findSymbol(s2);
+				myLeft = new ExprNode(findLeft(s2)); 
+				myRight = new ExprNode(findRight(s2));
 			}
 		}
 		
@@ -79,7 +98,10 @@ public class Expression2 {
 			if(s.length()==0){
 				return "";
 			}
-			if(s.length()==1){
+			if(s.length()==1 && !s.equals("~")){
+				return s;
+			}
+			if(s.length()==2 && s.charAt(0) == '~'){
 				return s;
 			}
 			int parenCounter = 0;
@@ -170,6 +192,9 @@ public class Expression2 {
 			if (!myItem.equals(node.myItem)) {
 				return false;
 			}
+			if (isTilde != (node.isTilde)) {
+				return false;
+			}
 			if (myLeft == null && node.myLeft != null) {
 				return false;
 			}
@@ -200,6 +225,9 @@ public class Expression2 {
 			if (myLeft != null) {
 				rtn = rtn + myLeft.toStringHelper();
 			}
+			if (isTilde == true) {
+				rtn = rtn + "~";
+			}
 			rtn = rtn + myItem; 
 			if (myRight != null) {
 				rtn = rtn + myRight.toStringHelper();
@@ -216,6 +244,9 @@ public class Expression2 {
 			if (myLeft != null) {
 				rtn = rtn + myLeft.toStringHelper();
 			}
+			if (isTilde == true) {
+				rtn = rtn + "~";
+			}
 			rtn = rtn + myItem; 
 			if (myRight != null) {
 				rtn = rtn + myRight.toStringHelper();
@@ -229,26 +260,52 @@ public class Expression2 {
 	public static void main(String[] args){
 		String b ="((x&y)=>z)";
 		String c ="((a=>b)=>c)";
-		Expression2 none = new Expression2();
-		Expression2 aa = new Expression2("(a=>b)");
-		System.out.println(aa.myRoot.myItem);
-		System.out.println(aa.myRoot.myLeft.myItem);
-		System.out.println(aa.myRoot.myRight.myItem);
-		System.out.println(none.equals(aa));
-		Expression2 tt = new Expression2(b);
-		System.out.println(tt.myRoot.myItem);
-		System.out.println(tt.myRoot.myLeft.myItem);
-		System.out.println(tt.myRoot.myLeft.myLeft.myItem);
-		System.out.println(tt.myRoot.myLeft.myRight.myItem);
-		System.out.println(tt.myRoot.myRight.myItem);
-		Expression2 cc = new Expression2(c);
-		System.out.println(aa.myRoot.equals(cc.myRoot.myLeft));
+		Expression3 none = new Expression3();
+		Expression3 aa = new Expression3("(a=>b)");
+		//System.out.println(aa.myRoot.myItem);
+		//System.out.println(aa.myRoot.myLeft.myItem);
+		//System.out.println(aa.myRoot.myRight.myItem);
+		//System.out.println(none.equals(aa));
+		Expression3 tt = new Expression3(b);
+		//System.out.println(tt.myRoot.myItem);
+		//System.out.println(tt.myRoot.myLeft.myItem);
+		//System.out.println(tt.myRoot.myLeft.myLeft.myItem);
+		//System.out.println(tt.myRoot.myLeft.myRight.myItem);
+		//System.out.println(tt.myRoot.myRight.myItem);
+		Expression3 cc = new Expression3(c);
+		//System.out.println(aa.myRoot.equals(cc.myRoot.myLeft));
 		
-		Expression2 testExp1 = new Expression2("((a=>(b|c))=>((d&e)|f))");
-		Expression2 testExp2 = new Expression2("(((a=>(b|c))=>((d&e)|f))=>z)");
+		Expression3 testExp1 = new Expression3("((a=>(b|c))=>((d&e)|f))");
+		Expression3 testExp2 = new Expression3("(((a=>(b|c))=>((d&e)|f))=>z)");
 		System.out.println(testExp1.myRoot.equals(testExp2.myRoot));
 		System.out.println(testExp1.myRoot.equals(testExp2.myRoot.myLeft));
 		System.out.println(testExp2.toString());
+		
+		Expression3 tilde1 = new Expression3("~p");
+		Expression3 tilde2 = new Expression3("(~p=>~q)");
+		Expression3 tilde3 = new Expression3("~(p=>q)");
+		Expression3 tilde4 = new Expression3("(~(~p=>~q)=>~(~(~z&~x)=>~x))");
+		Expression3 tilde5 = new Expression3("~(a=>(~(~p=>~q)=>~(~(~z&~x)=>~x)))");
+		System.out.println(tilde1.myRoot.myItem);
+		System.out.println(tilde2.myRoot.myItem);
+		System.out.println(tilde2.myRoot.myLeft.myItem);
+		System.out.println(tilde2.myRoot.myRight.myItem);
+		System.out.println(tilde3.myRoot.myItem);
+		System.out.println(tilde3.myRoot.myLeft.myItem);
+		System.out.println(tilde3.myRoot.myRight.myItem);
+		System.out.println(tilde3.myRoot.isTilde);
+		System.out.println(tilde4.myRoot.myItem);
+		System.out.println(tilde4.myRoot.myLeft.myItem);
+		System.out.println(tilde4.myRoot.myRight.myItem);
+		System.out.println(tilde4.myRoot.isTilde);
+		System.out.println(tilde4.myRoot.myRight.isTilde);
+		System.out.println(tilde4.myRoot.myLeft.isTilde);
+		System.out.println(tilde4.myRoot.equals(tilde5.myRoot.myRight));
+		System.out.println(tilde1.toString());
+		System.out.println(tilde2.toString());
+		System.out.println(tilde3.toString());
+		System.out.println(tilde4.toString());
+		System.out.println(tilde5.toString());
 	}
 	
 	
