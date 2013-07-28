@@ -66,9 +66,9 @@ public class Expression {
 				}	
 			}
 			if(s.charAt(0) == '~' && (s.length() > 1)){
-				myItem = "~";
+				this.myItem = "~";
 				try{
-					myLeft = new ExprNode(s.substring(1)); //recursive call after first tilde
+					this.myLeft = new ExprNode(s.substring(1)); //recursive call after first tilde
 				} catch (IllegalLineException e){
 					throw new IllegalLineException(e.getMessage());
 				}
@@ -78,12 +78,12 @@ public class Expression {
 			if (s.charAt(0) == '(' && s.charAt(s.length() - 1) == ')') { //has parentheses at both ends
 				try{
 					String[] sym = findSymbol(s); //contains string version of index of the symbol found, and a String version of that symbol
-					myItem = sym[1]; //the symbol
-					myLeft = new ExprNode(s.substring(1, Integer.parseInt(sym[0]))); // 1 to index
+					this.myItem = sym[1]; //the symbol
+					this.myLeft = new ExprNode(s.substring(1, Integer.parseInt(sym[0]))); // 1 to index
 					if(sym[1].equals("=>")){ //specials, needs 2 index
-						myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+2, s.length()-1)); //index +2 to get after the '=>'
+						this.myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+2, s.length()-1)); //index +2 to get after the '=>'
 					} else{
-						myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+1, s.length()-1));
+						this.myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+1, s.length()-1));
 					}
 				} catch (IllegalLineException e) {
 					throw new IllegalLineException(e.getMessage());
