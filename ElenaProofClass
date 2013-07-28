@@ -5,41 +5,43 @@ import java.util.*;
 	must also extend the proof inside mp/mt, because if an exception isn't thrown then the reason is true
 */
 
-
-public class Proof2 {
+public class Proof {
 	private TheoremSet theorems;
 	private String prevReason;
 	private SubProof originalProof;
 	private SubProof currentProof;
 	private String previousReason;
-	private ArrayList<SubProof> isProvenGlobal;
+	private Hashtable<String, LineNumber> isTrueGlobal;
 	private LineNumber currentLineNum;
 	private TheoremSet myTheorems;
-	private Hashtable<String, LineNumber> myLineNums;
 
-	// Construct a proof by setting up the original (root) proof.
-	public Proof2 (TheoremSet theorems) {
+	// Takes in a theoremset of theorems
+	// Constructs a proof by initializing all the variables to a null value
+	public Proof (TheoremSet theorems) {
 		originalProof = null;
 		currentProof = originalProof;
-		isProvenGlobal = new ArrayList<SubProof>();
+		isTrueGlobal = new Hashtable<String, LineNumber>();
 		myTheorems = theorems;
 		previousReason = "";
 		currentLineNum = null;
-		myLineNums = new Hashtable<String, LineNumber>();
 	}
 
 	public String nextLineNumber ( ) {
 		//currentLine = new LineNumber(nextLine)
 		return "";
 	}
-	
-	//need to break this up into smaller methods
-	//limit per method is 100 lines
-	//fuuuuck
-	
-	private static String[] validReasons = {"print","show","repeat","ic","co","mt","mp"};
 
-
+	/* precondition: x is the user's input, currentLineNum is the line that the user typed x on
+	 * 				 creates a new scanner that parses through and separates the words based on whitespace
+	 * - checks to see how many words there are, a legal number of words is from 1 to 4
+	 * - checks to see which reason the user is calling, and runs the corresponding helper method
+	 *   to determine if the reason is being used correctly or not and if the subsequent arguments
+	 *   are valid. 
+	 * postcondition: The program throws an error while trying to parse the user's input, indicating
+	 * 				  invalid input or invalid inference, and this error is passed on
+	 * 				- The program runs without throwing an error, and extendProof checks if the subProof
+	 * 				  has been proven. If it has, isTrueGlobal is updated with the new proven subProof
+	*/
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
 		if (x == null){
 			throw new IllegalLineException("Cannot input a null value");
@@ -88,7 +90,7 @@ public class Proof2 {
 				} else{
 					throw new IllegalLineException("Only repeat and ic take in 2 arguments");
 				}			
-			} else if(myWords.size() == 4){
+			} else if(myWords.size() == 4){						//handles mp, mt, co
 				if (reason.equals("mp")){
 					mp(myWords.get(1), myWords.get(2), myWords.get(3));
 				}
@@ -105,6 +107,10 @@ public class Proof2 {
 			}
 			//if it hasn't thrown an exception, then the reason has been validly used
 			prevReason = reason;
+			if (currentProof.isProven()){
+				currentLineNum.setExp(currentProof.myExpression);
+				isTrueGlobal.put(currentLineNum.toString(), currentLineNum);
+			}
 		} catch (IllegalLineException e){
 			throw e;
 		} catch (IllegalInferenceException e){
@@ -112,6 +118,12 @@ public class Proof2 {
 		}
 	}
 	
+	/* Precondition: Takes in a string exp that should represent the expression the user is trying to show
+	 * - checks to see if exp is a valid expression
+	 * - sets the original proof if it hasn't been initialized yet
+	 * - creates child proofs
+	 * Postcondition: the currentProof is now the new show statement	
+	*/
 	private void show(String exp) throws IllegalInferenceException, IllegalLineException{
 		Expression expression = null;
 		try{
@@ -129,6 +141,8 @@ public class Proof2 {
 		}
 	}
 	
+	/* Precondition: 
+	*/
 	private void theorem(String thm, String exp) throws IllegalInferenceException, IllegalLineException{
 		Expression expression = null;
 		try{
@@ -137,57 +151,205 @@ public class Proof2 {
 			throw e;
 		}
 		if (theorems.validTheorem(thm, expression)){
-			currentProof.assumptions.put(currentLineNum, expression);
+			currentLineNum.setExp(expression);
+			currentProof.assumptions.put(currentLineNum.toString(), currentLineNum);
 		} else{
 			throw new IllegalInferenceException("Improper use of a theorem, variables used incorrectly");
 		}
 	}
 	
-	private void repeat(String lineNum, String exp) throws IllegalInferenceException, IllegalLineException{
+	private void repeat(String line, String exp) throws IllegalInferenceException, IllegalLineException{
 		Expression expression = null;
 		try{
 			expression = new Expression(exp);
 		} catch(IllegalLineException e){
 			throw e;
 		}
-		LineNumber line = myLineNums.get(lineNum);
+		if (isTrueGlobal.contains(line)){
+			if(isTrueGlobal.get(line).getExp().equals(expression)){
+				currentLineNum.setExp(expression);
+				currentProof.assumptions.put(currentLineNum.toString(), currentLineNum);	
+			} else{
+				throw new IllegalLineException("Cannot use repeat on the given expression");
+			}
+		}
+		
+		LineNumber lineNum = currentProof.assumptions.get(line);
 		if(line == null){
 			throw new IllegalLineException(lineNum + " is not a valid line number");
 		}
-		
-		if (currentProof.assumptions.contains(line) || isProvenGlobal.contains(line)){
-			currentProof.assumptions.put(currentLineNum, expression);
-		}
-		
-		throw new IllegalInferenceException("cannot access " + line + " in call to repeat");
+	
+		if(lineNum.getExp().equals(expression)){
+			currentLineNum.setExp(expression);
+			currentProof.assumptions.put(currentLineNum.toString(), currentLineNum);	
+		} else{
+			throw new IllegalLineException("Cannot use repeat on the given expression");
+		}		
+	throw new IllegalInferenceException("cannot access " + line + " in call to repeat");
 	}
 	
-	public static String switchSign(String s) {
-		if (s.substring(0,1).equals("~")) {
-			return s.substring(1, s.length());
+	public static Expression switchSign(Expression.ExprNode exp) {
+		Expression expression = null;
+		if (exp.getMyItem().equals("~")) {
+			try{
+				expression = new Expression (exp.getMyLeft().toString());
+			} catch (IllegalLineException e){
+				System.out.println("should not have errored");
+			}
 		} else {
-			return "~" + s;
+			try{
+				expression = new Expression ("~" + exp.toString());
+			} catch (IllegalLineException e){
+				System.out.println("should not have errored");
+			}
+		}
+		
+		return expression;
+	}
+
+	private void assume(String exp) throws IllegalInferenceException {
+		//fill
+	}
+
+	private void mp(String line1, String line2, String rtnString) throws IllegalInferenceException, IllegalLineException {
+		Expression rtn = null;
+		try{
+			rtn = new Expression(rtnString);
+		} catch(IllegalLineException e){
+			throw e;
+		}
+		LineNumber lineNum1 = currentProof.assumptions.get(line1);
+		LineNumber lineNum2 = isTrueGlobal.get(line2);
+		if(lineNum1 == null){
+			throw new IllegalLineException(lineNum1 + " is not a valid line number");
+		} else if(lineNum2 == null){
+			throw new IllegalLineException(lineNum2 + " is not a valid line number");
+		}
+		
+		Expression line1Exp = lineNum1.getExp();
+		Expression line2Exp = lineNum2.getExp();
+		// checks if the two LineNumbers are in the right order, if not, switches them.
+		if (line1Exp.length() > line2Exp.length()) { 
+			Expression temp = line1Exp;
+			line1Exp = line2Exp;
+			line2Exp = temp;
+		}
+		if (line2Exp.myRoot.getMyLeft().equals(lineNum1.getExp())) {
+			if (line2Exp.myRoot.getMyRight().equals(rtn)) { 
+				currentLineNum.setExp(rtn);
+				currentProof.assumptions.put(currentLineNum.toString(), currentLineNum);
+			} else {
+				throw new IllegalInferenceException("bad inference");
+			}
+		}
+
+		else {
+			throw new IllegalInferenceException("bad inference");
+		}
+	}
+	
+	private void mt(String line1, String line2, String rtnString) throws IllegalInferenceException, IllegalLineException { 
+		Expression rtn = null;
+		//checks for valid expression
+		try{
+			rtn = new Expression(rtnString);
+		} catch(IllegalLineException e){
+			throw e;
+		}
+		//checks for valid lineNumbers
+		LineNumber lineNum1 = currentProof.assumptions.get(line1);
+		LineNumber lineNum2 = isTrueGlobal.get(line2);
+		if(lineNum1 == null){
+			throw new IllegalInferenceException(lineNum1 + " is not a valid line number");
+		} else if(lineNum2 == null){
+			throw new IllegalInferenceException(lineNum2 + " is not a valid line number");
+		}
+		
+		Expression line1Exp = lineNum1.getExp();
+		Expression line2Exp = lineNum2.getExp();	
+		
+		
+		// checks if the two LineNumbers are in the right order, if not, switches them.
+		if (line1Exp.length() > line2Exp.length()) { 
+			Expression temp = line1Exp;
+			line1Exp = line2Exp;
+			line2Exp = temp;
+		}
+		if (line2Exp.myRoot.getMyRight().equals(switchSign(line1Exp.myRoot))) {	
+			if (line2Exp.myRoot.getMyLeft().equals(switchSign(rtn.myRoot))) { 
+				currentLineNum.setExp(rtn);
+				currentProof.assumptions.put(currentLineNum.toString(), currentLineNum);
+			} else { 
+				throw new IllegalInferenceException("bad inference");
+			}
+		}
+		else {
+			throw new IllegalInferenceException("bad inference");
 		}
 	}
 
-	public void assume(String exp) throws IllegalInferenceException {
-		//fill in
-	}
-
-	public void mp(String line1, String line2, String rtnString) throws IllegalInferenceException, IllegalLineException {
-		//fill
-	}
-
-	public void mt(String line1, String line2, String rtnString) throws IllegalInferenceException { //says String but it should say Expression
-		//fill
-	}
-
-	public void co(String line1, String line2, String rtn) throws IllegalInferenceException {
-		//fill
+	private void co(String line1, String line2, String exp) throws IllegalInferenceException, IllegalLineException {
+		Expression rtn = null;
+		//checks for valid expression
+		try{
+			rtn = new Expression(exp);
+		} catch(IllegalLineException e){
+			throw e;
+		}
+		//checks for valid lineNumbers
+		LineNumber lineNum1 = currentProof.assumptions.get(line1);
+		LineNumber lineNum2 = isTrueGlobal.get(line2);
+		if(lineNum1 == null){
+			throw new IllegalInferenceException(lineNum1 + " is not a valid line number");
+		} else if(lineNum2 == null){
+			throw new IllegalInferenceException(lineNum2 + " is not a valid line number");
+		}
+		
+		Expression line1Exp = lineNum1.getExp();
+		Expression line2Exp = lineNum2.getExp();	
+		
+		//first this needs to check if line1 and line2 are proven, can only do that with LINE NUMBER!
+		if (switchSign(line1Exp.myRoot).equals(line2Exp)) { //~p, p=>q, q
+			if (rtn.myRoot.getMyLeft().equals(line1Exp.myRoot) 
+					|| rtn.myRoot.getMyLeft().equals(line2Exp.myRoot)) { 
+				currentLineNum.setExp(rtn);
+				currentProof.assumptions.put(currentLineNum.toString(), currentLineNum);
+			} else {
+				throw new IllegalInferenceException("bad inference");
+			}
+		}
+		else {
+			throw new IllegalInferenceException("bad inference");
+		}
 	}
 	
-	public void ic(String line1, String rtn) throws IllegalInferenceException {
-		//fill
+	private void ic(String line1, String exp) throws IllegalInferenceException, IllegalLineException {
+		Expression rtn = null;
+		//checks for valid expression
+		try{
+			rtn = new Expression(exp);
+		} catch(IllegalLineException e){
+			throw e;
+		}
+		//checks for valid lineNumbers
+		LineNumber lineNum1 = currentProof.assumptions.get(line1);
+		if(lineNum1 == null){
+			throw new IllegalInferenceException(lineNum1 + " is not a valid line number");
+		} 		
+		Expression line1Exp = lineNum1.getExp();
+		
+		//first this needs to check if line1 is proven, can only do that with LINE NUMBER!
+			if (line1Exp.myRoot.equals(rtn.myRoot.getMyRight())) { 
+				currentLineNum.setExp(rtn);
+				currentProof.assumptions.put(currentLineNum.toString(), currentLineNum);
+				System.out.println("Result: " + rtn.toString() + " is true!");
+			} else {
+				throw new IllegalInferenceException("bad inference");
+			}
+		//}
+		//else {
+		//	throw new IllegalInferenceException("bad inference");
+		//}
 	}	
 	
 	
@@ -198,7 +360,7 @@ public class Proof2 {
 		return "";
 	}	
 	
-	public String toStringHelper(SubProof pf) {
+	private String toStringHelper(SubProof pf) {
 		String toReturn = "";
 		toReturn = toReturn + "/n" + pf.myLineNumber + " " + pf.reason + " " + pf.myExpression.toString();
 		Iterator<SubProof> iter = pf.childProofs.iterator();
@@ -230,39 +392,79 @@ public class Proof2 {
 	
 	// SubProof is a child class much like Amoeba was a child class of AmoebaFamily. Each proof object has a original proof
 	// that is analogous to myRoot (stored in myExpression), and an ArrayList of childProofs that is analogous to myChildren.
-	// Each proof also contains its own line number and a reference to its parent proof.
+	// Each proof also contains its own line number, its original reason, a reference to its parent proof, and a hashtable
+	// containing all of the assumptions for the proof (lines/expressions that, for this proof, are essentially proven/true).
 	public static class SubProof {
 
-		//hashtable for states-- what is true for this particular proof, what's been assumed, proven 
-		//change subproof to proof instead of line
-		
 		private Expression myExpression;
 		private SubProof parentProof;
 		private ArrayList<SubProof> childProofs;
 		private LineNumber myLineNumber;
 		private String reason;
-		private Hashtable<LineNumber, Expression> assumptions;
 		
+		//proof.assumptions should hold all values true for that proof, ie. includes parent's assumptions
+		
+		private Hashtable<String, LineNumber> assumptions;
+
 		public SubProof(Expression expr, SubProof parent, LineNumber line) {
 			parentProof = parent;
 			childProofs = new ArrayList<SubProof>();
 			myExpression = expr;
 			myLineNumber = line;
-			assumptions = new Hashtable<LineNumber, Expression>();
+			assumptions = new Hashtable<String, LineNumber>();
 		}
-		
+
 		public boolean hasParent () {
 			return !(this.parentProof == null);
 		}
-		
+
 		public void addChildProof(SubProof child) {
 			childProofs.add(child);
 		}
-		
+
 		public LineNumber lineNumber () {
 			return myLineNumber;
 		}
-		
-		
+
+		public boolean isProven() {
+			return myExpression.equals(childProofs.get(childProofs.size()).myExpression);
+		}
+	}
+	
+	public static void main(String[] args) throws IllegalInferenceException {
+		TheoremSet theoremSet = null;
+		Proof terry = new Proof(theoremSet);
+		try {
+		String exp1 = "~~~p";
+		String exp2 = "(~~~p=>~q)";
+		String str1 = "~q";
+		Expression exp4 = new Expression("((x=>y)=>z)");
+		Expression exp5 = new Expression("(x=>y)");
+		String str2 = "z";
+		Expression exp6 = new Expression("~q");
+		Expression exp7 = new Expression("(p=>q)");
+		String str3 = "~p";
+		Expression exp8 = new Expression("c");
+		Expression exp9 = new Expression("((p&~q)=>~c)");
+		String str4 = "~(p&~q)";
+		Expression exp10 = new Expression("a");
+		Expression exp11 = new Expression("~a");
+		String str5 = "(a=>b)";
+		Expression exp20 = new Expression("~(x=>(y&z))");
+		String str8 = "(z=>~(x=>(y&z)))";
+		terry.mp(exp1, exp2, str1);
+		//System.out.println("");
+		//terry.mp(exp4, exp5, str2);
+		//System.out.println("");
+		//terry.mt(exp6, exp7, str3);
+		//System.out.println("");
+		//terry.mt(exp8, exp9, str4);
+		//System.out.println("");
+		//terry.co(exp10, exp11, str5);
+		//terry.mp(exp4, exp1, exp6);
+		//terry.ic(exp7, exp8);
+		} catch (IllegalLineException e) {
+			System.out.println("error with lines");
+		}
 	}
 }
