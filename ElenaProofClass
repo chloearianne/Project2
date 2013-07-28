@@ -28,199 +28,99 @@ public class Proof {
 		return null;
 	}
 	
-	//
-	//
-	//
-	//
-	
-	private static String[] validReasons = {"print","show","repeat","ic","co","mt","mp"};
-  
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
-		//new scanner breaks up the string into pieces
 		if (x == null){
 			throw new IllegalLineException("Cannot input a null value");
 		}
 		Scanner expScanner = new Scanner(x);
-		//check for null string input, ex. "" or "     "
 		if(!expScanner.hasNext()){
-			throw new IllegalLineException("Cannoy input an empty string");
-		}		
+			throw new IllegalLineException("Cannot input an empty string");
+		}	
 		
-		//first call to expScanner.next() should return the reason to use
-		String reason = expScanner.next();
-		Expression expression = null;
-		
-    
-    //check to see if this will work
-  	if(!Arrays.asList(validReasons).contains(reason) && !theorems.hasTheorem(reason)){
-			throw new IllegalLineException(reason + " is not a valid reason");
+		ArrayList<String> myWords = new ArrayList<String>();
+		while(expScanner.hasNext()){							//separate the arguments of the string
+			myWords.add(expScanner.next());
 		}
 		
-    
-    
-		//handles print
-		
-		if(!expScanner.hasNext() && !reason.equals("print")){
-			throw new IllegalLineException("A reason should be followed by at least an expression");
-		}
-		else if(reason.equals("print") && expScanner.hasNext()){
-			throw new IllegalLineException ("Print must not be followed by any additional characters");
-		}
-		
-		if (reason.equals("print")){
-			System.out.println(this);
-		} 
-		
-				
-		//second call to expScanner.next()
-		
-		String nextInput = expScanner.next();
-		
-		//check the cases that can only be followed by 1 expression
-		if(expScanner.hasNext() && (reason.equals("show") || reason.equals("assume") || theorems.hasTheorem(reason))){
-			throw new IllegalLineException(reason + " can only be followed by one expression");
-		}		
-		
-		//see if it is followed by a valid expression
-		if(reason.equals("show") || reason.equals("assume") || theorems.hasTheorem(reason)){
-			try{
-				expression = new Expression(nextInput);
-			} catch (Exception e){
-				throw e;
-			}
-		}
-		
-		//check to see if this is the correct implementation (ie. adding to proofs, how to keep track of state)
-		_____________________________________________________________
-		if (reason.equals("show")){
-			if (!originalTheoremInit){
-				SubProof originalTheorem = new SubProof(expression, null, new LineNumber(currentProof, expression, 1));
-				currentProof = originalTheorem;
-				originalTheoremInit = true;
+		String reason = myWords.get(0);			//the reason should always be the first argument		
+		if(myWords.size() == 1){				//only print statements can stand alone
+			if (reason.equals("print")){
+				System.out.println(this);
+				return;
 			} else{
-				SubProof child = new SubProof(expression, currentProof, new LineNumber(currentProof, expression, 1));
-				currentProof.addChildProof(child);
+				throw new IllegalLineException("A reason should be followed by at least an expression");
 			}
-		}
-		
-		
-		//handles assume
-		else if (reason.equals("assume")){
-			if (!prevReason.equals("show")){
-				throw new IllegalLineException("An assume can only follow a show");
+		} else if(myWords.size() == 2){			//must be a length 2 to be a valid use of show, assume, or theorem
+			if (reason.equals("show")){			//ie. only one expression follows the reason
+				if (originalProof == null){
+					originalProof = new SubProof(expression, null, new LineNumber(currentLine));
+					currentProof = originalProof;
+				} else{
+					SubProof child = new SubProof(expression, currentProof, new LineNumber(currentLine));
+					currentProof.addChildProof(child);
+				}
+			} else if (reason.equals("assume")){				//handles assume
+				if (!prevReason.equals("show")){
+					throw new IllegalLineException("An assume can only follow a show");
+				} else{
+					assume(myWords.get(1));
+				}
+			} else if (theorems.hasTheorem(reason)){			//handles theorem use
+				if (theorems.validTheorem(reason, expression)){
+					currentProof.assumptions.put(currentLine, expression);
+				} else{
+					throw new IllegalInferenceException("Improper use of a theorem, variables used incorrectly");
+				}
 			} else{
-				//check for valid assumption
-				//call on assume method
-				currentProof.assumptions.put(lineNum,expression);
+				throw new IllegalLineException(reason + " is not a valid theorem or has an incorrect number of arguments");
 			}
-		} 
-	
-		//handles theorems
-		if (theorems.hasTheorem(reason)){
-			if (theorems.validTheorem(reason, expression)){
-				//extend the proof
-				currentProof.assumptions.add(lineNum, expression);
+		} else if (myWords.size() == 3){
+			if (reason.equals("repeat")){					//handles repeat, if repeat errors, pass it on
+				try{
+					repeat(myWords.get(1), myWords.get(2));
+				} catch (Exception e){
+					throw e;
+				} 
+			}
+			else if (reason.equals("ic")){					//handles ic
+				try{
+					ic(myWords.get(1), myWords.get(2));
+				} catch (Exception e){
+					throw e;
+				} 
 			} else{
-				throw new IllegalInferenceException("Improper use of a theorem, variables used incorrectly");
+				throw new IllegalLineException("Only repeat and ic take in 2 arguments");
+			}			
+		} else if(myWords.size() == 4){
+			if (reason.equals("mp")){
+				try{
+					mp(myWords.get(1), myWords.get(2), myWords.get(3));
+				} catch (Exception e){
+					throw e;
+				}
 			}
-		}
-		
-		
-		//nextInput should be a lineNumber, 3rd call to scanner should be an expression for repeat or ic
-		if(!expScanner.hasNext()){
-			throw new IllegalLineException(reason + " is missing additional arguments");
-		}
-		
-		String nextInput2 = expScanner.next();
-		
-		//check the cases that can only be followed by 1 lineNumber
-		if(expScanner.hasNext() && (reason.equals("repeat") || reason.equals("ic"))){
-			throw new IllegalLineException(reason + " can only be followed by one lineNumber");
-		}		
-		
-		//see if it is followed by a valid expression
-		if(reason.equals("repeat") || reason.equals("ic")){
-			try{
-				///how to initialize myLine?
-				LineNumber myLine = new LineNumber(nextInput);
-				expression = new Expression(nextInput2);
-			} catch (Exception e){
-				throw e;
+			else if (reason.equals("mt")){
+				try{
+					mt(myWords.get(1), myWords.get(2), myWords.get(3));
+				} catch (Exception e){
+					throw e;
+				}	
 			}
-		}
-		
-		______________________
-		//handles repeat
-		if (reason.equals("repeat")){
-			//do stuff
-		}
-		
-		//handles ic
-		//does expression proof need to check if it's a valid lineNumber before passing it into ic?
-		//or does the ic function check for valid lineNumbers itself?
-		else if (reason.equals("ic")){
-			//call on ic method with try catch
-			//if valid, add to subproof
-		}
-		
-
-		
-		//nextInput and nextInput2 should be lineNumbers
-		//4th call to scanner should be an expression for mp, mt, co
-		if(!expScanner.hasNext()){
-			throw new IllegalLineException(reason + " is missing additional arguments");
-		}
-		
-		//see if it is followed by a valid expression or LineNumber
-		if(reason.equals("mp") || reason.equals("mt") || reason.equals("co")){
-			try{
-				///how to initialize myLine?
-				LineNumber myLine = new LineNumber(nextInput);
-				LineNumber myLine2 = new LineNumber(nextInput2);
-				expression = new Expression(expScanner.next());
-			} catch (Exception e){
-				throw e;
+			else if (reason.equals("co")){
+				try{
+					co(myWords.get(1), myWords.get(2), myWords.get(3));
+				} catch (Exception e){
+					throw e;
+				}
+			} else{
+				throw new IllegalLineException(reason + " does not take in 3 arguments");
 			}
+		} else {
+			throw new IllegalLineException("There can never be more than 3 arguments for a reason");
 		}
-		
-		//there should be no more arguments
-		if(expScanner.hasNext()){
-			throw new IllegalLineException(reason + " has incorrect number of arguments, or is an invalid reason");
-		}		
-		
-		
-		if (reason.equals("mp")){
-			//call on mp method with try catch
-			//if valid, add to subproof
-		}
-		else if (reason.equals("mt")){
-			//call onmt method with try catch
-			//if valid, add to subproof			
-		}
-		else if (reason.equals("co")){
-			//call on co method with try catch
-			//if valid, add to subproof			
-		}
-		
-		
-		
-		
-		//insert other cases here
-		
-		
-		
-		
-		//does this need to be added in every case?
+		//if it hasn't thrown an exception, then the reason has been validly used
 		prevReason = reason;
-		originalProof.addChildProof(expression);
-		
-		
-			
-		
 	}
-	
-	
-	
 	
 	public String toString ( ) {
 		if (!(originalProof == null)) {
