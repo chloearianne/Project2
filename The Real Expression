@@ -1,8 +1,16 @@
 package proj2;
 public class Expression {
 
-  public ExprNode myRoot;
+	public ExprNode myRoot;
 	public String expression;
+	
+	/* Expression objects are essentially trees. The String input from the constructor
+	 * will be transformed into a tree with its leaves being lower-case letters.
+	 * PRECONDITION: valid String type of input.
+	 * POSTCODITION: A tree is made out of the String input, and throws an error if not syntactically valid
+	 * In addition, the instance variable "expression" will keep a valid String representation of the expression 
+	 * for the toString method
+	 */
 
 	public Expression(String s) throws IllegalLineException {
 		expression = s;
@@ -13,40 +21,6 @@ public class Expression {
 		}
 	}
 
-	public static boolean equals(Expression a, Expression b) {
-		return a.myRoot.equals(b.myRoot);
-	}
-	
-	public static boolean isLegal(String s){
-		return true;
-	}
-	
-/* //I don't think these are needed
-	public String value() {
-		return myRoot.myItem;
-	}
-	
-	public String valueLeft() {
-		return myRoot.myLeft.myItem;
-	}
-	
-	public String valueRight() {
-		return myRoot.myRight.myItem;
-	}
-*/
-	
-	public ExprNode node() {
-		return myRoot;
-	}
-	
-	public ExprNode nodeLeft() {
-		return myRoot.myLeft;
-	}
-	
-	public ExprNode nodeRight() {
-		return myRoot.myRight;
-	}
-
 
 
 	public String toString() {
@@ -54,32 +28,35 @@ public class Expression {
 	}	
 
 
+	/* 
+	 * This is the subclass, for the nodes of expression. Each node contains a myItem, myLeft, and myRight.
+	 * 
+	 */
 
 	public static class ExprNode{ //subclass
 		private String myItem;
-		private boolean isTilde = false;
 		private ExprNode myLeft;
 		private ExprNode myRight;
 
-		public ExprNode(){
+		public ExprNode(){ //blank expression
 			myItem = null;
 			myLeft = null;
 			myRight = null;
 		}
-
-		private static boolean isLetter(char ch){
-			if(((ch -'0') > 48) && ((ch - '0') < 75)){ //values for letters
-				return true;
-			}
-			return false;
-		}
+		
+		
+		/*
+		 * ExprNode takes in a String. It finds the center symbol, and sets that to my item, while
+		 * calling a recusive call to myLeft and myRight for their symbols. This process continues 
+		 * until a tree is made.
+		 */
 		
 		public ExprNode(String s) throws IllegalLineException{
-			if(s.length()==0){
+			if(s.length()==0){ //null String
 				throw new IllegalLineException("Expression should not be null.");
 			}
-			if(s.length()==1){
-				if(s.matches("[a-z]")){
+			if(s.length()==1){ //length 1 can only be a lower-case letter
+				if(s.matches("[a-z]")){ //lower-case
 					myItem = s;
 					myLeft = null;
 					myRight = null;
@@ -91,28 +68,24 @@ public class Expression {
 			if(s.charAt(0) == '~' && (s.length() > 1)){
 				myItem = "~";
 				try{
-					myRight = new ExprNode(s.substring(1));
-				} catch (Exception e){
+					myLeft = new ExprNode(s.substring(1)); //recursive call after first tilde
+				} catch (IllegalLineException e){
 					throw new IllegalLineException(e.getMessage());
 				}
 				
 				return;
 			} 
-			if (s.charAt(0) == '(' && s.charAt(s.length() - 1) == ')') {
+			if (s.charAt(0) == '(' && s.charAt(s.length() - 1) == ')') { //has parentheses at both ends
 				try{
-					String[] sym = findSymbol(s);
-					myItem = sym[1];
-					//System.out.println("found " + myItem);
-					//System.out.println(sym[0]);
-					myLeft = new ExprNode(s.substring(1, Integer.parseInt(sym[0])));
-					//System.out.println("hello");
-					if(sym[1].equals("=>")){
-						//System.out.println("found =>");
-						myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+2, s.length()-1));
+					String[] sym = findSymbol(s); //contains string version of index of the symbol found, and a String version of that symbol
+					myItem = sym[1]; //the symbol
+					myLeft = new ExprNode(s.substring(1, Integer.parseInt(sym[0]))); // 1 to index
+					if(sym[1].equals("=>")){ //specials, needs 2 index
+						myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+2, s.length()-1)); //index +2 to get after the '=>'
 					} else{
 						myRight = new ExprNode(s.substring(Integer.parseInt(sym[0])+1, s.length()-1));
 					}
-				} catch (Exception e) {
+				} catch (IllegalLineException e) {
 					throw new IllegalLineException(e.getMessage());
 				}
 				
@@ -122,6 +95,17 @@ public class Expression {
 			
 		}
 
+		
+		/*
+		 * FindSymbol take in a string and finds either a |,&,=> that will function 
+		 * as the node's myItem. This is done through a process of parenthesis checking,
+		 * where a parenCounter is kept; +1 for '(', and -1 for ')', starting after the
+		 * first parentheses if there is one. If at any time the parenCounter is 0, meaning either 
+		 * a closed parentheses (), or a single character. It then return a String[] with the index
+		 * of the symbol, and which symbol it is.
+		 * 
+		 */
+		
 		public String[] findSymbol(String s) throws IllegalLineException{
 			int parenCounter = 0;
 			for(int i = 1; i<s.length()-1; i++){
@@ -131,52 +115,47 @@ public class Expression {
 				if(s.charAt(i) == ')'){
 					parenCounter--;
 				}
-				if(parenCounter == 0){
-					if (s.charAt(i) == '~') {
+				if(parenCounter == 0){ //parens have closed up for the first time, so Ima check the next index for a symbol
+					if (s.charAt(i) == '~') { // test for multiple '~'
 						continue;
 					}
-					if (s.charAt(i+1) == '&') {
+					if (s.charAt(i+1) == '&') { //if &
 						return new String[] {(i+1)+"", "&"};
 					}
-					if(s.charAt(i+1) == '|'){
+					if(s.charAt(i+1) == '|'){ //if |
 						return new String[] {(i+1)+"", "|"};
 					}
-					if((i+2<s.length()-1) && (""+s.charAt(i+1)+s.charAt(i+2)).equals("=>")){
+					if((i+2<s.length()-1) && (""+s.charAt(i+1)+s.charAt(i+2)).equals("=>")){ //if the next two are = and >
 						return new String[] {(i+1)+"", "=>"};
 					}
-					//throw new IllegalLineException("No {|, &, =>} found.");
-				} else if (parenCounter < 0){
+				} else if (parenCounter < 0){ //should never be negative, meaning more closed than open parentheses
 					throw new IllegalLineException("Incorrect parentheses use.");
 				}
 			}
 			throw new IllegalLineException("No {|, &, =>} found.");
 		}
-
 		
 
 		public boolean equals(ExprNode node){
-			if (!myItem.equals(node.myItem)) {
+			if (!myItem.equals(node.myItem)) { //items not equal
 				return false;
 			}
-			if (isTilde != (node.isTilde)) {
+			if (myLeft == null && node.myLeft != null) { //lefts not equal
 				return false;
 			}
-			if (myLeft == null && node.myLeft != null) {
-				return false;
-			}
-			if (myLeft != null && node.myLeft == null) {
-				return false;
-			}
-			if (myRight == null && node.myRight != null) {
-				return false;
-			}
-			if (myRight != null && node.myRight == null) {
+			if (myLeft != null && node.myLeft == null) { 
 				return false;
 			}
 			if (myLeft != null && node.myLeft != null) {
 				if (!myLeft.equals(node.myLeft)) {
 					return false;
 				}
+			}
+			if (myRight == null && node.myRight != null) {//rights not equal
+				return false;
+			}
+			if (myRight != null && node.myRight == null) {
+				return false;
 			}
 			if (myRight != null && node.myRight != null) {
 				if (!myRight.equals(node.myRight)) {
@@ -186,110 +165,51 @@ public class Expression {
 			return true;
 		}
 
+		/*
+		 * Precondition: a correct string.
+		 * 
+		 * It should traverse through the expression's nodes 
+		 * and return a string representing the makeup of the nodes
+		 * 
+		 */
 		public String toString() {
 			String rtn = "";
-			if (myLeft != null && myRight != null && !myItem.equals("~")) {
+			if (myLeft != null && myRight != null && !myItem.equals("~")) { // ignore printing parens if '~' or if single variable
 				rtn = "(";
 			}
 			if (myLeft != null) {
-				rtn = rtn + myLeft.toStringHelper();
-			}
-			if (isTilde == true) {
-				rtn = rtn + "~";
+				rtn = rtn + myLeft.toStringHelper(); //recursive call to myLeft
 			}
 			rtn = rtn + myItem; 
 			if (myRight != null) {
-				rtn = rtn + myRight.toStringHelper();
+				rtn = rtn + myRight.toStringHelper(); //recursive call to myRight
 			}
-			if (myLeft != null && myRight != null && !myItem.equals("~")) {
+			if (myLeft != null && myRight != null && !myItem.equals("~")) { // ignore printing parens if '~' or if single variable
 				rtn = rtn + ")";
 			}
 			return rtn;
 		}
 
 		public String toStringHelper() {
-			if (myLeft == null && myRight == null) {
+			if (myLeft == null && myRight == null) { //if there is no more children, just print myItem.
 				return myItem;
 			}
 			String rtn = "";
-			if (!myItem.equals("~")) {
+			if (!myItem.equals("~")) { // ignore printing parens if '~'
 				rtn = "(";
 			}
 			if (myLeft != null) {
-				rtn = rtn + myLeft.toStringHelper();
-			}
-			if (isTilde == true) {
-				rtn = rtn + "~";
+				rtn = rtn + myLeft.toStringHelper(); //recursive call to myLeft
 			}
 			rtn = rtn + myItem; 
 			if (myRight != null) {
-				rtn = rtn + myRight.toStringHelper();
+				rtn = rtn + myRight.toStringHelper(); // recursive call to myRight
 			}
-			if (!myItem.equals("~")) {
+			if (!myItem.equals("~")) { // ignore printing parens if '~'
 				rtn = ")";
 			}
 			return rtn;
 		}
-	
-	}
 
-
-	public static void main(String[] args){
-
-		/*//System.out.println(aa.myRoot.myItem);
-		//System.out.println(aa.myRoot.myLeft.myItem);
-		//System.out.println(aa.myRoot.myRight.myItem);
-		//System.out.println(none.equals(aa));
-		Expression3 tt = new Expression3(b);
-		//System.out.println(tt.myRoot.myItem);
-		//System.out.println(tt.myRoot.myLeft.myItem);
-		//System.out.println(tt.myRoot.myLeft.myLeft.myItem);
-		//System.out.println(tt.myRoot.myLeft.myRight.myItem);
-		//System.out.println(tt.myRoot.myRight.myItem);
-		Expression3 cc = new Expression3(c);
-		//System.out.println(aa.myRoot.equals(cc.myRoot.myLeft));
-
-		Expression3 testExp1 = new Expression3("((a=>(b|c))=>((d&e)|f))");
-		Expression3 testExp2 = new Expression3("(((a=>(b|c))=>((d&e)|f))=>z)");
-		System.out.println(testExp1.myRoot.equals(testExp2.myRoot));
-		System.out.println(testExp1.myRoot.equals(testExp2.myRoot.myLeft));
-		System.out.println(testExp2.toString());
-
-		Expression3 tilde1 = new Expression3("~p");
-		Expression3 tilde2 = new Expression3("(~p=>~q)");
-		Expression3 tilde3 = new Expression3("~(p=>q)");
-		Expression3 tilde4 = new Expression3("(~(~p=>~q)=>~(~(~z&~x)=>~x))");
-		Expression3 tilde5 = new Expression3("~(a=>(~(~p=>~q)=>~(~(~z&~x)=>~x)))");
-		System.out.println(tilde1.myRoot.myItem);
-		System.out.println(tilde2.myRoot.myItem);
-		System.out.println(tilde2.myRoot.myLeft.myItem);
-		System.out.println(tilde2.myRoot.myRight.myItem);
-		System.out.println(tilde3.myRoot.myItem);
-		System.out.println(tilde3.myRoot.myLeft.myItem);
-		System.out.println(tilde3.myRoot.myRight.myItem);
-		System.out.println(tilde3.myRoot.isTilde);
-		System.out.println(tilde4.myRoot.myItem);
-		System.out.println(tilde4.myRoot.myLeft.myItem);
-		System.out.println(tilde4.myRoot.myRight.myItem);
-		System.out.println(tilde4.myRoot.isTilde);
-		System.out.println(tilde4.myRoot.myRight.isTilde);
-		System.out.println(tilde4.myRoot.myLeft.isTilde);
-		System.out.println(tilde4.myRoot.equals(tilde5.myRoot.myRight));
-		System.out.println(tilde1.toString());
-		System.out.println(tilde2.toString());
-		System.out.println(tilde3.toString());
-		System.out.println(tilde4.toString());
-		System.out.println(tilde5.toString()); */
-		String b ="((x&y)=>z)";
-		String c ="((a=>b)=>c)";
-		try{
-			Expression aa = new Expression("(~~~~p=>~q)");
-			System.out.println(aa.value());
-			System.out.println(aa.myRoot.myLeft.toString());
-			
-		} catch (IllegalLineException e){
-			System.out.println(e.getMessage());
-			System.out.println("failed");
-		}
 	}
 }	
