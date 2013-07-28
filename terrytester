@@ -1,10 +1,23 @@
-//EQUALS IS A PLACEHOLDER METHOD! REPLACE WITH SOMETHING TO TRAVERSE THE TREES TO PATTERN MATCH	
-		//Use a tree to do the pattern checking
-		//ex: line2.subtree matches with line1.root
-
-
 public class terrytester2 {
 	LineNumber currentLineNumber; //PLACEHOLDER FOR NOW UNTIL WE HAVE CURRENTLINENUMBER
+	
+	public static String simplify(String s) {
+		String rtn = s;
+		for (int i = 0; i < rtn.length(); i++) {
+			if (rtn.length() > 2) {
+				if (rtn.charAt(0) == '~' && rtn.charAt(1) == '~') {
+					rtn = rtn.substring(i, rtn.length());
+					i = 0;
+				}
+				if (rtn.charAt(i) == '~' && rtn.charAt(i + 1) == '~') {
+					rtn = "" + rtn.substring(0, i) + rtn.substring(i+2, rtn.length());
+					i = 0;
+				}
+			}
+		}
+		return rtn;
+	}
+	
 	public static String switchSign(String s) {
 		if (s.substring(0,1).equals("~")) {
 			return s.substring(1, s.length());
@@ -40,15 +53,15 @@ public class terrytester2 {
 				line1 = line2;
 				line2 = temp;
 			}
-			System.out.print(line2.nodeLeft() + " equals ");
-			System.out.println(line1.node());
-			System.out.print(line2.nodeRight() + " equals ");
-			System.out.println(rtn.node());
-			if (line2.nodeLeft().equals(line1.node())) { //Need to write a LineNumber-specific equals method 
-				if (line2.nodeRight().equals(rtn.node())) { 
+			System.out.print(line2.nodeLeft().toString() + " equals ");
+			System.out.println(line1.node().toString());
+			System.out.print(line2.nodeRight().toString() + " equals ");
+			System.out.println(rtn.node().toString());
+			if (line2.nodeLeft().toString().equals(line1.toString())) { //Need to write a LineNumber-specific equals method 
+				if (line2.nodeRight().toString().equals(rtn.toString())) { 
 					//add rtn to arraylist of proven LineNumbers
 					//NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
-					System.out.println("Result: " + rtn.value() + " is true!");
+					System.out.println("Result: " + rtn.toString() + " is true!");
 				} else {
 					throw new IllegalInferenceException("bad inference");
 				}
@@ -62,19 +75,29 @@ public class terrytester2 {
 		}
 	}
 
-	public void mt(Expression line1, Expression line2, String rtnString) throws IllegalInferenceException { //says String but it should say Expression
+	public void mt(Expression line1, Expression line2, String rtnString) throws IllegalInferenceException, IllegalLineException { //says String but it should say Expression
 		try {
+			Expression rtn = null;
+			try{
+				rtn = new Expression(rtnString);
+			} catch(IllegalLineException e){
+				throw new IllegalLineException("hi");
+			}
 			System.out.println("Testing a modus tollens: Does " + line1.toString() + " and " + line2.toString() + " imply " + rtn.toString() + "?");
-			if (line1.value.length() > line2.value.length()) { // checks if the two LineNumbers are in the right order, if not, switches them.
+			if (line1.toString().length() > line2.toString().length()) { // checks if the two LineNumbers are in the right order, if not, switches them.
 				Expression temp = line1;
 				line1 = line2;
 				line2 = temp;
 			}
-			if (line2.valueRight.equals(switchSign(line1.value))) {	
-				if (line2.valueLeft.equals(switchSign(rtn.value))) { 
+			System.out.println(line2.nodeRight().toString());
+			System.out.println(switchSign(line1.toString()));
+			System.out.println(line2.nodeLeft().toString());
+			System.out.println(switchSign(rtn.toString()));
+			if (line2.nodeRight().toString().equals(switchSign(line1.toString()))) {	
+				if (line2.nodeLeft().toString().equals(switchSign(rtn.toString()))) { 
 					//add rtn to arraylist of proven LineNumbers
 					//NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
-					System.out.println("Result: " + rtn.value + " is true!");
+					System.out.println("Result: " + rtn.toString() + " is true!");
 				} else { 
 					throw new IllegalInferenceException("bad inference");
 				}
@@ -86,20 +109,25 @@ public class terrytester2 {
 			System.out.println("bad inference!");
 		}
 	}
-/*	
-	public void co(LineNumber line1, LineNumber line2, Expression rtn) throws IllegalInferenceException {
+
+	public void co(Expression line1, Expression line2, String rtnString) throws IllegalInferenceException, IllegalLineException {
 		try {
-			System.out.println("Testing a contradiction: Does " + line1.value + " and " + line2.value + " imply " + rtn.value + "?");
-			if (line1.value.length() > line2.value.length()) { // checks if the two LineNumbers are in the right order, if not, switches them.
-				LineNumber temp = line1;
-				line1 = line2;
-				line2 = temp;
+			Expression rtn = null;
+			try{
+				rtn = new Expression(rtnString);
+			} catch(IllegalLineException e){
+				throw new IllegalLineException("hi");
 			}
-			if (line1.isProven && line2.isProven && (switchSign(line1.value)).equals(line2.value)) { //~p, p=>q, q
-				if (rtn.valueLeft.equals(line1.value) || rtn.valueLeft.equals(line2.value)) { 
+			System.out.println("Testing a contradiction: Does " + line1.toString() + " and " + line2.toString() + " imply " + rtn.toString() + "?");
+			System.out.println(line1.toString());
+			System.out.println(line2.toString());
+			System.out.println(rtn.nodeLeft().toString());
+			//first this needs to check if line1 and line2 are proven, can only do that with LINE NUMBER!
+			if (switchSign(line1.toString()).equals(line2.toString())) { //~p, p=>q, q
+				if (rtn.nodeLeft().toString().equals(line1.toString()) || rtn.nodeLeft().toString().equals(line2.toString())) { 
 					//add rtn to arraylist of proven LineNumbers
 					//NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
-					System.out.println("Result: " + rtn.value + " is true!");
+					System.out.println("Result: " + rtn.toString() + " is true!");
 				} else {
 					throw new IllegalInferenceException("bad inference");
 				}
@@ -111,12 +139,18 @@ public class terrytester2 {
 		  System.out.println("bad inference!");
 	  }
 	}
-	*/
-	public void ic(Expression line1, Expression rtn) throws IllegalInferenceException {
+
+	public void ic(Expression line1, String rtnString) throws IllegalInferenceException, IllegalLineException {
 		try {
+			Expression rtn = null;
+			try{
+				rtn = new Expression(rtnString);
+			} catch(IllegalLineException e){
+				throw new IllegalLineException("hi");
+			}
 			System.out.println("Testing an IC: Does " + line1.toString() + " imply " + rtn.toString() + "?");
-			//if (line1.isProven) { //I need LineNumber for this
-				if (line1.value().equals(rtn.valueRight())) { 
+			//first this needs to check if line1 is proven, can only do that with LINE NUMBER!
+				if (line1.toString().equals(rtn.nodeRight().toString())) { 
 					//add rtn to arraylist of proven LineNumbers
 					//NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
 					System.out.println("Result: " + rtn.toString() + " is true!");
@@ -138,19 +172,31 @@ public class terrytester2 {
 		try {
 		Expression exp1 = new Expression("~~~p");
 		Expression exp2 = new Expression("(~~~p=>~q)");
-		Expression exp3 = new Expression("~q");
 		String str1 = "~q";
 		Expression exp4 = new Expression("((x=>y)=>z)");
 		Expression exp5 = new Expression("(x=>y)");
-		Expression exp6 = new Expression("z");
-		Expression exp7 = new Expression("~(x=>(y&z))");
-		Expression exp8 = new Expression("(z=>~(x=>(y&z)))");
+		String str2 = "z";
+		Expression exp6 = new Expression("~q");
+		Expression exp7 = new Expression("(p=>q)");
+		String str3 = "~p";
+		Expression exp8 = new Expression("c");
+		Expression exp9 = new Expression("((p&~q)=>~c)");
+		String str4 = "~(p&~q)";
+		Expression exp10 = new Expression("a");
+		Expression exp11 = new Expression("~a");
+		String str5 = "(a=>b)";
+		Expression exp20 = new Expression("~(x=>(y&z))");
+		String str8 = "(z=>~(x=>(y&z)))";
 		terry.mp(exp1, exp2, str1);
 		System.out.println("");
-		//terry.mp(exp4, exp5, exp6);
+		terry.mp(exp4, exp5, str2);
 		System.out.println("");
+		terry.mt(exp6, exp7, str3);
+		System.out.println("");
+		terry.mt(exp8, exp9, str4);
+		System.out.println("");
+		terry.co(exp10, exp11, str5);
 		//terry.mp(exp4, exp1, exp6);
-		System.out.println("");
 		//terry.ic(exp7, exp8);
 		} catch (IllegalLineException e) {
 			System.out.println("error with lines");
