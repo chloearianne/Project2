@@ -1,7 +1,7 @@
 //I REVAMPED THE CONSTRUCTOR AND WROTE TOSTRING AND EQUALS METHODS AND IT SHOULD SUPPORT TILDES, HADN'T FOUND A PROBLEM SO FAR -Terry
 
 //Also, tildes on variables are placed in myItem (ex: "~a"), 
-//while tildes on expressions [ex: "~(a=>b)"] set the isTilde boolean to TRUE, and the code support it. 
+//while tildes on expressions [ex: "~(a=>b)"] will set the isTilde boolean to TRUE, and the code handles it. 
 //-Terry
 
 public class Expression3 {
@@ -21,16 +21,68 @@ public class Expression3 {
 		}
 	}
 	
+	public static boolean equals(Expression3 a, Expression3 b) {
+		return a.myRoot.equals(b.myRoot);
+	}
 	
-	public boolean isLegal(String s){
+	public static boolean isLegal(String s){
 		return true;
 	}
-		
+
 	
 	public String toString() {
 		return expression;
-	}	
+	}
 	
+	public String value() {
+		return myRoot.myItem;
+	}
+	
+	public String valueLeft() {
+		return myRoot.myLeft.myItem;
+	}
+	
+	public String valueRight() {
+		return myRoot.myLeft.myItem;
+	}
+	
+	public static boolean andorChecker(String s) {
+		if (s == null) {
+			return false;
+		}
+		if (s.length() < 5) {
+			for (int i = 0; i < s.length(); i++) {
+				if (s.charAt(i) == '&' || s.charAt(i) == '|') {
+					return false;
+				}
+			}
+		}
+		int parenCounter = 0;
+		int andorCounter = 0;
+		for(int i = 0; i<s.length(); i++){
+			if(s.charAt(i) == '('){
+				parenCounter++;
+				andorCounter--;
+			}
+			if(s.charAt(i) == ')'){
+				parenCounter--;
+				andorCounter++;
+			}
+			if(s.charAt(i) == '&'){
+				andorCounter++;
+			}
+			if(s.charAt(i) == '|'){
+				andorCounter++;
+			}
+			if (andorCounter > 1) {
+				return false;
+			}
+			if(parenCounter == 0){
+
+			}
+		}
+		return true;
+	}
 	
 	
 	private static class ExprNode{ //subclass
@@ -174,7 +226,7 @@ public class Expression3 {
 			return "";
 		}
 		
-		private boolean equals(ExprNode node){
+		protected boolean equals(ExprNode node){
 			if (!myItem.equals(node.myItem)) {
 				return false;
 			}
@@ -205,7 +257,8 @@ public class Expression3 {
 			}
 			return true;
 		}
-		
+
+		/*
 		public String toString() {
 			String rtn = "(";
 			if (myLeft != null) {
@@ -240,9 +293,9 @@ public class Expression3 {
 			rtn = rtn + ")";
 			return rtn;
 		}
-		
+		*/
+
 	}
-	
 	public static void main(String[] args){
 		String b ="((x&y)=>z)";
 		String c ="((a=>b)=>c)";
@@ -292,9 +345,8 @@ public class Expression3 {
 		System.out.println(tilde3.toString());
 		System.out.println(tilde4.toString());
 		System.out.println(tilde5.toString());
+		System.out.println("");
+		System.out.println(andorChecker("(a&b)"));
+		System.out.println(andorChecker("(a&b&c)"));
 	}
-	
-	
-	
-
 }
