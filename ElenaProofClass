@@ -13,6 +13,7 @@ public class Proof {
 	private String previousReason;
 	private Hashtable<String, LineNumber> isTrueGlobal;
 	private LineNumber currentLineNum;
+	private LineNumber previousLineNum;
 	private TheoremSet myTheorems;
 
 	// Takes in a theoremset of theorems
@@ -26,10 +27,45 @@ public class Proof {
 		currentLineNum = null;
 	}
 
-	public String nextLineNumber ( ) {
-		//currentLine = new LineNumber(nextLine)
-		return "";
-	}
+	// set up the next line number for nextLineNumber to return at the beginning of the 
+		// next step's call.
+		public LineNumber nextLineNumber ( ) {
+			LineNumber nextLine;
+			LineNumber tempLine = new LineNumber();
+			tempLine = currentLineNum;
+			// if we're starting a new subproof, create a copy of the current line, add a ".0" for a placeholder
+			// and call a new line number using that
+			if (previousReason.equals("show")) {
+				tempLine.myString += ".0";
+				nextLine = new LineNumber(tempLine, true);
+			// if we're about to exit a subproof (the current proof just finished), then create a copy of the 
+			// current line, subtract the last number and its point, and call a new line number using that
+			} else if (isProvenGlobal.contains(currentProof)){
+				tempLine.step = currentProof.myLineNumber.step;
+				int tempLength = tempLine.myString.length();
+				if (tempLine.step >= 10) {
+					tempLine.myString = tempLine.myString.substring(0, tempLength - 3);
+				} else if (tempLine.step >= 100) {
+					tempLine.myString = tempLine.myString.substring(0, tempLength - 4);
+				} else {
+					if (tempLength > 1) {
+						tempLine.myString = tempLine.myString.substring(0, tempLength - 2);
+					}
+				}
+				nextLine = new LineNumber(tempLine, false);
+			// if we're simply continuing a proof, then call a new line number on the current line.
+			} else {
+				nextLine = new LineNumber(currentLineNum, false);
+			}
+			// set the current line to be proven locally, set previousLine to this one, and set currentLine
+			// to the nextLine we just created.
+			currentLineNum.isProven = true;
+			previousLine = currentLineNum;
+			currentLineNum = nextLine;
+			return currentLineNum;
+		}
+		
+		
 
 	/* precondition: x is the user's input, currentLineNum is the line that the user typed x on
 	 * 				 creates a new scanner that parses through and separates the words based on whitespace
@@ -401,6 +437,7 @@ public class Proof {
 		private ArrayList<SubProof> childProofs;
 		private LineNumber myLineNumber;
 		private String reason;
+		private ArrayList<String> everythingSoFar;
 		
 		//proof.assumptions should hold all values true for that proof, ie. includes parent's assumptions
 		
@@ -412,6 +449,7 @@ public class Proof {
 			myExpression = expr;
 			myLineNumber = line;
 			assumptions = new Hashtable<String, LineNumber>();
+			
 		}
 
 		public boolean hasParent () {
