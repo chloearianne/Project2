@@ -6,31 +6,36 @@ public class LineNumber {
 	Expression myExpression;
 	String myString;
 	
-	public LineNumber(int i) {
-		myString = "";
+	public LineNumber() {
+		step = 0;
 	}
 	
-	public LineNumber(LineNumber previous) {
-		myProof = previous.myProof;
-		step = previous.step + 1;
+	public LineNumber(LineNumber previous, boolean startNewSubProof) {
+		myProof = new Proof.SubProof(null, null, null);
+		if (startNewSubProof) {
+			step = 1;
+		} else {
+			myProof = previous.myProof;
+			step = previous.step + 1;
+		}
 		isProven = false;
-		myNumber(step, previous);
+		myNumber(previous);
 	}
 	
-	public void myNumber(int stepNumber, LineNumber prev) {
-		String line;		
-		if (!(myProof.hasParent())) {
-			line = step.toString();
+	public void myNumber(LineNumber prev) {
+		String line;
+		if (!prev.myProof.hasParent()) {
+			line = step + "";
 		} else {
 			int length = prev.myString.length();
-			if (stepNumber - 1 < 10){
+			if (step - 1 < 10){
+				line = prev.myString.substring(0, length - 1);
+			} else if (step - 1 < 100) {
 				line = prev.myString.substring(0, length - 2);
-			} else if (stepNumber - 1 < 100) {
-				line = prev.myString.substring(0, length - 3);
 			} else {
-				line = prev.myString.substring(0, length - 4);
+				line = prev.myString.substring(0, length - 3);
 			}
-			line += stepNumber;
+			line += step;
 		}
 		myString = line;
 	}

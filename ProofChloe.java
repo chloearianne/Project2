@@ -2,13 +2,14 @@ import java.util.*;
 
 public class Proof { 
 	
-	SubProof originalProof = null;
+	SubProof originalProof;
 	SubProof currentProof;
 	
 	LineNumber currentLine;
 	LineNumber previousLine;
 	
 	String previousReason;
+	String currentReason;
 	
 	ArrayList<SubProof> isProvenGlobal;
 	
@@ -16,23 +17,60 @@ public class Proof {
 
 	// Construct a proof by setting up the original (root) proof.
 	public Proof (TheoremSet theorems) {
-		originalProof = new SubProof(null, null, new LineNumber(0));
+		originalProof = new SubProof(null, null, new LineNumber());
 		currentProof = originalProof;
 		previousReason = "";
-		previousLine = new LineNumber(0);
-		currentLine = new LineNumber(0);
+		previousLine = new LineNumber();
+		currentLine = new LineNumber();
 		currentLine.step = 0;
 		isProvenGlobal = new ArrayList<SubProof>();
 		myTheorems = theorems;
 	}
 
+	// set up the next line number for nextLineNumber to return at the beginning of the 
+	// next step's call.
 	public LineNumber nextLineNumber ( ) {
+		LineNumber nextLine;
+		LineNumber tempLine = new LineNumber();
+		tempLine = currentLine;
+		// if we're starting a new subproof, create a copy of the current line, add a ".0" for a placeholder
+		// and call a new line number using that
+		if (currentReason.equals("show")) {
+			tempLine.myString += ".0";
+			nextLine = new LineNumber(tempLine, true);
+		// if we're about to exit a subproof (the current proof just finished), then create a copy of the 
+		// current line, subtract the last number and its point, and call a new line number using that
+		} else if (isProvenGlobal.contains(currentProof)){
+			tempLine.step = currentProof.myLineNumber.step;
+			int tempLength = tempLine.myString.length();
+			if (tempLine.step >= 10) {
+				tempLine.myString = tempLine.myString.substring(0, tempLength - 3);
+			} else if (tempLine.step >= 100) {
+				tempLine.myString = tempLine.myString.substring(0, tempLength - 4);
+			} else {
+				if (tempLength > 1) {
+					tempLine.myString = tempLine.myString.substring(0, tempLength - 2);
+				}
+			}
+			nextLine = new LineNumber(tempLine, false);
+		// if we're simply continuing a proof, then call a new line number on the current line.
+		} else {
+			nextLine = new LineNumber(currentLine, false);
+		}
+		// set the current line to be proven locally, set previousLine to this one, and set currentLine
+		// to the nextLine we just created.
+		currentLine.isProven = true;
+		previousLine = currentLine;
+		currentLine = nextLine;
 		return currentLine;
 	}
 	
 	public void extendProof (String x) throws IllegalLineException, IllegalInferenceException {
 		//at very beginning, set x to be the expression associated with the current line number
 		currentLine.myExpression = new Expression(x);
+		if (currentReason.equals("show")) {
+			currentLine.myProof = currentProof;
+		}
 		
 		// elena's code
 		
@@ -42,38 +80,6 @@ public class Proof {
 			isProvenGlobal.add(currentProof);
 		}
 		
-		// at very end, set up the next line number for nextLineNumber to return at the beginning of the 
-		// next step's call.
-		LineNumber nextLine;
-		
-		// if we're starting a new subproof, create a copy of the current line, add a ".0" for a placeholder
-		// and call a new line number using that
-		if (reason.equals("show")) {
-			LineNumber tempLine = currentLine;
-			tempLine.myString += ".0";
-			nextLine = new LineNumber(tempLine);
-		// if we're about to exit a subproof (the current proof just finished), then create a copy of the 
-		// current line, subtract the last number and its point, and call a new line number using that
-		} else if (isProvenGlobal.contains(currentProof)){
-			LineNumber tempLine = currentLine;
-			int tempLength = tempLine.myString.length();
-			if (tempLine.step >= 10) {
-				tempLine.myString = tempLine.myString.substring(0, tempLength - 3);
-			} else if (tempLine.step >= 100) {
-				tempLine.myString = tempLine.myString.substring(0, tempLength - 4);
-			} else {
-				tempLine.myString = tempLine.myString.substring(0, tempLength - 2);
-			}
-			nextLine = new LineNumber(tempLine);
-		// if we're simply continuing a proof, then call a new line number on the current line.
-		} else {
-			nextLine = new LineNumber(currentLine);
-		}
-		// set the current line to be proven locally, set previousLine to this one, and set currentLine
-		// to the nextLine we just created.
-		currentLine.isProven = true;
-		previousLine = currentLine;
-		currentLine = nextLine;
 	}
 
 	public String toString ( ) {
@@ -85,7 +91,7 @@ public class Proof {
 	
 	public String toStringHelper(SubProof pf) {
 		String toReturn = "";
-		toReturn = toReturn + "/n" + pf.myLineNumber.myString + " " + pf.reason + " " + pf.myExpression.toString();
+		toReturn = toReturn + "/ln" + pf.myLineNumber.myString + " " + pf.reason + " " + pf.myExpression.toString();
 		Iterator<SubProof> iter = pf.childProofs.iterator();
 		while (iter.hasNext()) {
 			toStringHelper(iter.next());
@@ -136,7 +142,7 @@ public class Proof {
 		}
 		
 		public boolean hasParent () {
-			return !(this.parentProof == null);
+			return !(parentProof == null);
 		}
 		
 		public void addChildProof(SubProof child) {
@@ -152,6 +158,6 @@ public class Proof {
 		}
 		
 		
-	}
+	}	
 }
 	
