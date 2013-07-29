@@ -1,0 +1,103 @@
+//hopefully I wrote it properly - terry
+
+import junit.framework.TestCase;
+
+public class InferenceTest extends TestCase {
+  //just brainstorming tests really 
+	public static void main(String[] args) {
+		Proof terry = new Proof(TheoremSet theorems);
+		String a1 = "p";
+		String a2 = "p=>q";
+		String a3 = "q";
+		
+		//Testing mp
+		try { 
+			terry.mp(a1, a2, a3);
+			terry.mp("(~a=>(b|c))", "((~a=>(b|c))=>d)", "d");
+			terry.mp("((~a&~b)=>~c)", "(~a&~b)", "~c");
+			terry.mp("(x=>~(y|z))", "((x=>~(y|z))=>~(q=>w))");
+			terry.mp("(m&(q|(a&b)))", "((m&(q|(a&b)))=>(q|~x)", "(q|~x)");
+			assertTrue(true);
+		} catch (Exception e) {
+			fail("Should not throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} 
+		try { 
+			terry.mp("(m&(q|(a&b)))", "((m&(q|(a&b)))=>(q|~x)", "(q|x)");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		try { 
+			terry.mp("(a&b)", "(z=>(a&b))", "z");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		try { 
+			terry.mp("p", "p=>q", "p");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		
+		//Testing mt
+		try { 
+			terry.mt("~q", "p=>q", "~p");
+			terry.mt("(~a&b)", "(c=>~(~a&b))", "~c");
+			terry.mt("((a|~c)=>~(e|f))", "(e|f)", "~(a|~c)");
+			terry.mt("(v=>x)", "(~(s&d)=>~(v=>x))", "(s&d)");
+			terry.mt("~(a|c)", "((v&(d|c))=>(a|c)", "~(v&(d|c))");
+			assertTrue(true);
+		} catch (Exception e) {
+			fail("Should not throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} 
+		try { 
+			terry.mt("p", "p=>q", "q");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		try { 
+			terry.mt("~q", "~(p=>q)", "~p");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		try { 
+			terry.mt("a", "~p=>a", "p");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		//Testing co 
+		//Thanks to Piazza, With contradictions we are allowed to infer anything we want...
+		try { 
+			terry.co("p", "~p", "(p=>q)");
+			terry.co("~(a&~b)", "(a&~b)", "z");
+			terry.co("(~(~a|~b)=>~(z))", "~(~(~a|~b)=>~(z)))", "(z=>x)");
+			terry.co("(a|(b&c))", "~(a|(b&c))", "(e=>r)");
+			terry.co(");
+			assertTrue(true);
+		} catch (Exception e) {
+			fail("Should not throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} 
+		try { 
+			terry.co("p", "p=>q", "q");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		try { 
+			terry.co("~q", "~(p=>q)", "~p");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+		try { 
+			terry.mco("a", "~p=>a", "p");
+			fail("Should throw an exception at " + a1 + ", " + a2 + ", " + a3);
+		} catch (Exception e) {
+			assertTrue(true);
+		} 
+	}
+}
