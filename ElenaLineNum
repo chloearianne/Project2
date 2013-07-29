@@ -1,50 +1,35 @@
 public class LineNumber {
 
-  private Proof.SubProof myProof;
+	private Proof.SubProof myProof;
 	private boolean proven;
 	private String myReason;
 	private Expression myExpression;
-	private String myString;   //ex. "3.1.2"
+	private String myString;  	//ex. "3.1.2 show (p=>q)" 
+	private String myNumber;     //ex. "3.1.2"
 
 	public LineNumber() {
-		myString = "1";
+		myNumber = "1";
 		proven = false;
-		myReason = null;
+		myReason = "";
 		myExpression = null;
 		myProof = null;
-		
+		myString = "";
 	}
 
 	//generates a new lineNumber object given a string of the line number
 	public LineNumber(String line){
-		myString = line;
+		myString = null;
 		proven = false;
 		myReason = null;
 		myExpression = null;
 		myProof = null;
-		
+		myNumber = line;
 	}
-	
-	
-	
-	/*
-	public LineNumber(LineNumber previous, boolean startNewSubProof) {
-		myProof = new Proof.SubProof(null, null, null);
-		if (startNewSubProof) {
-			stepOfSubproof = 1;
-		} else {
-			myProof = previous.myProof;
-			stepOfSubproof = previous.stepOfSubproof + 1;
-		}
-		proven = false;
-		myNumber(previous);
-	}
-	*/
-	
 	
 	public void setExp(Expression exp){
 		this.myExpression = exp;
 	}
+	
 	
 	public void setReason(String reason){
 		this.myReason = reason;
@@ -66,13 +51,28 @@ public class LineNumber {
 		myProof = newProof;
 	}
 	
+	
 	public Expression getExp(){
 		return myExpression;
 	}
 	
-	public String toString(){
+	
+	public void setString(String s){
+		myString = s;
+	}
+	
+	public String getNum(){
+		return myNumber;
+	}
+	
+	public String getEntireLine(){
 		return myString;
 	}
+	
+	public String toString(){
+		return myNumber;
+	}
+
 	
 	/*
 	public void myNumber(LineNumber prev) {
