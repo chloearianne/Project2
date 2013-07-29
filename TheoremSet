@@ -26,6 +26,9 @@ public class TheoremSet {
 		if (s.equals("") || s == null) {
 			throw new IllegalArgumentException("Theorems must have a name");
 		}
+		if (e == null){
+			throw new IllegalArgumentException("Can't have empty expression");
+		}
 		String[] name = s.split(" ");
 		if (name.length != 1) {
 			throw new IllegalArgumentException(
@@ -116,7 +119,6 @@ public class TheoremSet {
 				// do a recursive call, if the left side is true check the right
 				// side
 				if (validTheoremHelper(thm.getMyLeft(), exp.getMyLeft())) {
-					System.out.println("get my left returned true");
 					return validTheoremHelper(thm.getMyRight(),
 							exp.getMyRight());
 				}
