@@ -161,7 +161,7 @@ public class Proof {
 			currentLineNum.setString(x);
 			currentLineNum.setIsProven(true);
 			
-			System.out.println("is proven: " + currentProof.isProven() + " has parent:" + currentProof.hasParent());
+			//System.out.println("is proven: " + currentProof.isProven() + " has parent:" + currentProof.hasParent());
 			if (currentProof.isProven()){
 				currentLineNum.setIsProven(true);
 				currentLineNum.setExp(currentProof.myExpression);
@@ -333,8 +333,13 @@ public class Proof {
 			line1Exp = line2Exp;
 			line2Exp = temp;
 		}
-		if (line2Exp.myRoot.getMyLeft().equals(lineNum1.getExp())) {
-			if (line2Exp.myRoot.getMyRight().equals(rtn)) { 
+		
+		if(line2Exp.myRoot.getMyLeft() == null || line2Exp.myRoot.getMyRight() == null){
+			throw new IllegalInferenceException ("malformed line number " + line2);
+		}
+		
+		if ((line2Exp.myRoot.getMyLeft()).equals(line1Exp.myRoot)) {
+			if (line2Exp.myRoot.getMyRight().equals(rtn.myRoot)) { 
 				currentLineNum.setExp(rtn);
 				currentProof.assumptions.put(currentLineNum.getNum(), currentLineNum);
 				currentProof.lastAddedLine = currentLineNum;
@@ -368,7 +373,7 @@ public class Proof {
 		
 		Expression line1Exp = lineNum1.getExp();
 		Expression line2Exp = lineNum2.getExp();	
-		
+		System.out.println(lineNum1.getExp() + "    adhkjahuststpoer;lsf");
 		
 		// checks if the two LineNumbers are in the right order, if not, switches them.
 		if (line1Exp.length() > line2Exp.length()) { 
@@ -376,6 +381,12 @@ public class Proof {
 			line1Exp = line2Exp;
 			line2Exp = temp;
 		}
+		
+		System.out.println(line1Exp + " weeeeeeeeeeeeeeeeeeeeeeeeee " + line2Exp);
+		if(line2Exp.myRoot.getMyLeft() == null || line2Exp.myRoot.getMyRight() == null){
+			throw new IllegalInferenceException ("malformed line number " + line2);
+		}
+		
 		if (line2Exp.myRoot.getMyRight().equals(switchSign(line1Exp.myRoot))) {	
 			if (line2Exp.myRoot.getMyLeft().equals(switchSign(rtn.myRoot))) { 
 				currentLineNum.setExp(rtn);
@@ -400,7 +411,6 @@ public class Proof {
 			throw e;
 		}
 		//checks for valid lineNumbers
-		System.out.println(currentProof.assumptions);
 		LineNumber lineNum2 = currentProof.assumptions.get(line2);
 		LineNumber lineNum1 = currentProof.assumptions.get(line1);
 		if(lineNum1 == null){
@@ -439,6 +449,10 @@ public class Proof {
 			throw new IllegalInferenceException(lineNum1 + " is not a valid line number");
 		} 		
 		Expression line1Exp = lineNum1.getExp();
+		
+		if(rtn.myRoot.getMyLeft() == null || rtn.myRoot.getMyRight() == null){
+			throw new IllegalInferenceException ("malformed expression " + rtn);
+		}
 		
 		//first this needs to check if line1 is proven, can only do that with LINE NUMBER!
 		if (line1Exp.myRoot.equals(rtn.myRoot.getMyRight())) { 
@@ -527,8 +541,93 @@ public class Proof {
 			return !(this.parentProof == null);
 		}
 
+		
+		
+		//used for junit testing purposes
 		public void addChildProof(SubProof child) {
 			childProofs.add(child);
 		}
+		public Expression getMyExpression() {
+			return myExpression;
+		}
+
+		public void setMyExpression(Expression e) {
+			myExpression = e;
+		}
+
+		public SubProof getParent() {
+			return parentProof;
+		}
+
+		public void setParent(SubProof pf) {
+			parentProof = pf;
+		}
+
+		public ArrayList<SubProof> getChildProofs() {
+			return childProofs;
+		}
+
+		public Hashtable<String, LineNumber> getAssumptions() {
+			return assumptions;
+		}
+
+		public ArrayList<LineNumber> getEverythingSoFar () {
+			return everythingSoFar;
+		}
+
+		public LineNumber getLineNumber() {
+			return myLineNumber;
+		}
+
+		public void setLineNumber(LineNumber line) {
+			myLineNumber = line;
+		}
+  
+	}
+	
+	
+	//used for junit testing
+	public LineNumber getCurrentLineNumber() {
+		return currentLineNum;
+	}
+
+	public LineNumber getPreviousLineNumber() {
+		return prevLineNum;
+	}
+
+	public void setPreviousLineNumber(LineNumber line) {
+		prevLineNum = line;
+	}
+
+	public void setCurrentLineNumber(LineNumber line) {
+		currentLineNum = line;
+	}
+
+	public SubProof getCurrentProof() {
+		return currentProof;
+	}
+
+	public void setCurrentProof(SubProof pf) {
+		currentProof = pf;
+	}
+
+	public Hashtable<String, LineNumber> getIsTrueGlobal() {
+		return isTrueGlobal;
+	}
+
+	public SubProof getOriginalProof() {
+		return originalProof;
+	}
+
+	public void setOriginalProof(SubProof pf) {
+		originalProof = pf;
+	}
+
+	public TheoremSet getTheoremSet() {
+		return theorems;
+	}
+
+	public void setTheoremSet(TheoremSet thms) {
+		theorems = thms;
 	}
 }
