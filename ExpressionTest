@@ -1,0 +1,336 @@
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class ExpressionTest {
+
+  /*
+	 * I never test findSymbol because everything to make the expression relies on findSymbol.
+	 * If it were not working, no test here would pass.
+	 * 
+	 * toString is also tested throughout with any valid string showing it prints the correct string.
+	 */
+	
+	@Test
+	public void testRegularExpression() {
+		try{
+			Expression aa = new Expression(""); //nada
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression ab = new Expression("a"); //one char
+			assertEquals(ab.myRoot.toString(), "a");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+
+		
+		try{
+			Expression ac = new Expression("((a&b)|c)"); //2 &/|
+			assertEquals(ac.myRoot.toString(), "((a&b)|c)");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression ad = new Expression("(a=>)"); //no right parens
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression ae = new Expression("(a"); //2 length no right parens
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+
+	}
+	
+	@Test
+	public void testTilde(){
+		try{
+			Expression ba = new Expression("~(~~(~b=>~~d)|~~~~(~~~c&~s))"); //hella tildes in an expr
+			assertEquals(ba.myRoot.toString(), "~(~~(~b=>~~d)|~~~~(~~~c&~s))");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression bb = new Expression("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~a"); //hella tildes, no parens
+			assertEquals(bb.myRoot.toString(), "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~a");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression bc = new Expression("~~~~~~~~~~~~~~~~~~~~(a&~b)"); //hella tildes with single parens 
+			assertEquals(bc.myRoot.toString(), "~~~~~~~~~~~~~~~~~~~~(a&~b)");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression cf = new Expression("(a=>b=>c)"); //multiple => in a row
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+	}
+	
+	@Test
+	public void testImplies(){
+		try{
+			Expression ca = new Expression("((a=>b)=>(b=>(c=>d)))"); // multiple nested implies
+			assertEquals(ca.myRoot.toString(), "((a=>b)=>(b=>(c=>d)))");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression cb = new Expression("((a=>b)=>~(~p=>c))"); //implies implies implies
+			assertEquals(cb.myRoot.toString(), "((a=>b)=>~(~p=>c))");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression cc = new Expression("~(m=>p)"); //simple with tilde
+			assertEquals(cc.myRoot.toString(), "~(m=>p)");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression cd = new Expression("(m=>p)"); //very basic
+			assertEquals(cd.myRoot.toString(), "(m=>p)");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression ce = new Expression("=>"); //just the =>
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression cf = new Expression("(a=>b=>c)"); //multiple in a row
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+	}
+	
+	@Test
+	public void testAndOr(){ //'&' and '|' handled the same way.
+		try{
+			Expression da = new Expression("((a&b)|(b&(c|d)))"); // multiple nested &\|
+			assertEquals(da.myRoot.toString(), "((a&b)|(b&(c|d)))");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression db = new Expression("((a&b)&~(~p&c))"); //multiple nested with ~
+			assertEquals(db.myRoot.toString(), "((a&b)&~(~p&c))");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression dc = new Expression("~(m|p)"); //basic | with ~
+			assertEquals(dc.myRoot.toString(), "~(m|p)");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression dd = new Expression("(m&p)"); //simplest case
+			assertEquals(dd.myRoot.toString(), "(m&p)");
+			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression de = new Expression("|"); //single char
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression df = new Expression("(a|b|c)"); //multiple | in a row
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+	}
+	
+	@Test
+	public void validCharacterCheck(){
+		try{
+			Expression ea = new Expression("(&)"); //single char with parens
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression eb = new Expression("(a=>*=>c)"); //random chars
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression ec = new Expression("(&^%$#@)"); //lots of random characters
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression ed = new Expression("opwmeit898490wn97qn"); //jut random stuff with no parens
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression ee = new Expression("($$$)"); //multiple wrong symbols in a row
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression ef = new Expression("(>=>|=>&)"); //valid symbols but wrongly places
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression eg = new Expression("(m=>pp)"); //double letters
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression eh = new Expression("Z"); //capital single letter
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+	}
+	
+	@Test
+	public void parensTest(){
+		try{
+			Expression fa = new Expression("((a))"); //nested parens
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression fb = new Expression("((((((()))))))"); //many parens, nothing inside
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression fc = new Expression("()"); //empty parens
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression fd = new Expression("(a=>b))"); //extra right parens
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+		
+		try{
+			Expression fe = new Expression(")a|b("); //parens wrong direction
+			fail("Should not reach");
+		} catch (IllegalLineException e){
+			assertTrue(true);
+		}
+	}
+	
+	public void equalsTest(){
+		try{
+			Expression ga = new Expression("(a|b)"); //basic expression
+			Expression gb = new Expression("(a|b)"); 
+			assertTrue(ga.myRoot.equals(gb.myRoot));
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression gc = new Expression("((a&b)|(b&(c|d)))"); //nested and/or
+			Expression gd = new Expression("((a&b)|(b&(c|d)))"); 
+			assertTrue(gc.myRoot.equals(gd.myRoot));
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression ge = new Expression("((a=>b)=>~(~p=>c))"); //nested => with tildes
+			Expression gf = new Expression("((a=>b)=>~(~p=>c))"); 
+			assertTrue(ge.myRoot.equals(gf.myRoot));
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression gg = new Expression("a"); //single character
+			Expression gh = new Expression("a"); 
+			assertTrue(gg.myRoot.equals(gh.myRoot));
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression gi = new Expression(""); //empty
+			Expression gj = new Expression(""); 
+			assertFalse(gi.myRoot.equals(gj.myRoot));
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+		
+		try{
+			Expression gl = new Expression("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~y"); //single character
+			Expression gm = new Expression("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~y"); 
+			assertTrue(gl.myRoot.equals(gm.myRoot));
+		} catch (IllegalLineException e){
+			fail("Should not reach");
+		}
+	}
+
+
+}
