@@ -26,11 +26,17 @@ public class terrytester2 {
 		}
 	}
 	
-	public void assume(Expression3 exp) throws IllegalInferenceException { //NEEDS LINENUMBER
+	public void assume(String rtnString) throws IllegalInferenceException, IllegalLineException { //NEEDS LINENUMBER
 		try {
-			if (switchSign(exp.value()).equals(currentLineNumber.value) || exp.equals(currentLineNumber.valueLeft)) {
+			Expression rtn = null;
+			try{
+				rtn = new Expression(rtnString); //tries to create a new expession out of the given string
+			} catch(IllegalLineException e){
+				throw new IllegalLineException("hi"); // tests if the string is correct 
+			}
+			if (switchSign(rtn.toString()).equals(currentLineNumber.value) || rtn.toString().equals(currentLineNumber.valueLeft)) { //placeholder lineNumber
 				//NEEDS TO CALL UP THE CURRENT LINE NUMBER AND SET ISPROVEN TO TRUE
-				System.out.println("Assuming " + exp.value() + " is true...");
+				System.out.println("Assuming " + rtn.toString() + " is true...");
 			} else {
 				throw new IllegalInferenceException("bad inference");
 			}
