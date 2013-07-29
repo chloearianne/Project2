@@ -1,199 +1,208 @@
 import java.util.*;
 
-//assumes Expression has an equals method to compare 2 expressions, 
+//assumes Expression has an equals method to compare 2 expressions,
 //a getLeft, and getRight method that returns an expression
 //and a toString method
 public class TheoremSet {
-	//check for no spaces, odd characters $ are ok
+	// check for no spaces, odd characters $ are ok
 	private Hashtable<String, Expression> theorems;
-	private static String[] illegalNames = {"print","show","assume","mp","mt","co","ic","repeat"};
-	//still need to add more to illegal characters, does java have a built in list of them?
-	private static String[] illegalChars = {"&", "|", "~", "\"", ">", "=", "(", ")"};
-	
-	public TheoremSet ( ) {
+	private static String[] illegalNames = { "print", "show", "assume", "mp",
+			"mt", "co", "ic", "repeat" };
+	// still need to add more to illegal characters, does java have a built in
+	// list of them?
+	private static String[] illegalChars = { "&", "|", "~", "\"", ">", "=",
+			"(", ")" };
+
+	public TheoremSet() {
 		theorems = new Hashtable<String, Expression>();
 	}
 
-	//put takes in a String name of the theorem and the corresponding expression as arguments
-	//adds these to a hashtable and returns the expression(theorem) just added
-	//capitalization doesn't matter, automatically puts it as lowercase
+	// put takes in a String name of the theorem and the corresponding
+	// expression as arguments
+	// adds these to a hashtable and returns the expression(theorem) just added
+	// capitalization doesn't matter, automatically puts it as lowercase
 	public Expression put(String s, Expression e) {
-		//name should be one word only, separated by -, letters/numbers only
+		// name should be one word only, separated by -, letters/numbers only
+		if (s.equals("") || s == null) {
+			throw new IllegalArgumentException("Theorems must have a name");
+		}
 		String[] name = s.split(" ");
-		if(name.length != 1){
-			throw new IllegalArgumentException("Theorem names must only be one word");
+		if (name.length != 1) {
+			throw new IllegalArgumentException(
+					"Theorem names must only be one word");
 		}
-		
-		for (String illegalName: illegalNames){
-			if (s.toLowerCase().equals(illegalName)){
-				throw new IllegalArgumentException("Cannot use the word " + illegalName + " as the name of a theorem");
+
+		for (String illegalName : illegalNames) {
+			if (s.toLowerCase().equals(illegalName)) {
+				throw new IllegalArgumentException("Cannot use the word "
+						+ illegalName + " as the name of a theorem");
 			}
 		}
-		
-		//name cannot contain special symbols &, | , ~ , ect.
-		for (String illegalChar : illegalChars){
-			if (s.contains(illegalChar)){
-				throw new IllegalArgumentException("Cannot use the character " + illegalChar + " in the name of a theorem");
+
+		// name cannot contain special symbols &, | , ~ , etc.
+		for (String illegalChar : illegalChars) {
+			if (s.contains(illegalChar)) {
+				throw new IllegalArgumentException("Cannot use the character "
+						+ illegalChar + " in the name of a theorem");
 			}
 		}
-		
-				
+
 		theorems.put(s.toLowerCase(), e);
-		
+
 		return e;
 	}
-	
-	public Expression getTheorem(String s){
+
+	public Expression getTheorem(String s) {
 		return theorems.get(s);
 	}
-	
-	public boolean hasTheorem(String s){
+
+	public boolean hasTheorem(String s) {
 		return theorems.containsKey(s);
 	}
+
+	// hashtable to keep track of the variables and the corresponding expression
+	private Hashtable<String, Expression.ExprNode> myVars;
+	// check for null left value for ~ expressions
+
 	
-	//takes in the string name of a theorem and checks if exp implements the corresponding theorem correctly
-	//returns true if it is a valid use of the theorem s, and false if not	
-	public boolean validTheorem(String s, Expression exp){
-		if (!hasTheorem(s)){
+	// takes in the string name of a theorem and checks if exp implements the
+	// corresponding theorem correctly
+	// returns true if it is a valid use of the theorem s, and false if not
+	public boolean validTheorem(String s, Expression exp) {
+		if (!hasTheorem(s)) {
 			return false;
-		}		
+		}
+		myVars = new Hashtable<String,Expression.ExprNode>();
 		Expression theorem = getTheorem(s);
 		return validTheoremHelper(theorem.myRoot, exp.myRoot);
-			
+
 	}
+
 	
-	//hashtable to keep track of the variables and the corresponding expression
-	private Hashtable<String, Expression.ExprNode> myVars= new Hashtable<String, Expression.ExprNode>();
-	
-	
-	//check for null left value for ~ expressions
-	
-	//theorem and expression should have the same format until you hit a variable for the theorem
-	//checks to see if the resulting tree nodes are equal
-	private boolean validTheoremHelper(Expression.ExprNode thm, Expression.ExprNode exp){
-		//base case
-		if(thm == null && exp == null){
+	// theorem and expression should have the same format until you hit a
+	// variable for the theorem
+	// checks to see if the resulting tree nodes are equal
+	private boolean validTheoremHelper(Expression.ExprNode thm,
+			Expression.ExprNode exp) {
+		// base case
+		if (thm == null && exp == null) {
 			return true;
-		} else if(thm != null && exp != null){
-			//check if this is a correct use of regex
-			//if it's a variable, it should always be at a leaf
-			if (thm.getMyItem().matches("[a-z]")){
+		} else if (thm != null && exp != null) {
+			// check if this is a correct use of regex
+			// if it's a variable, it should always be at a leaf
+			if (thm.getMyItem().matches("[a-z]")) {
 				//
-				if(myVars.containsKey(thm.getMyItem())){
-					if(!myVars.get(thm.getMyItem()).equals(exp)){
-						//throw new IllegalInferenceException("Improper use of theorem. Variables do not match up.");
+				if (myVars.containsKey(thm.getMyItem())) {
+					if (!myVars.get(thm.getMyItem()).equals(exp)) {
+						// throw new
+						// IllegalInferenceException("Improper use of theorem. Variables do not match up.");
 						return false;
-					} 
-				} else{
-					if(!myVars.contains(exp)){
-						//variable not initialized yet, add to table
-						myVars.put(thm.getMyItem(), exp);
-						//if it hits the variable, then it should be at a leaf so it should return true
+					} else {
 						return true;
-					} else{
-						return false; //cannot initialize two different variables to be the same expression
+					}
+				} else {
+					if (!myVars.contains(exp)) {
+						// variable not initialized yet, add to table
+						myVars.put(thm.getMyItem(), exp);
+						// if it hits the variable, then it should be at a leaf
+						// so it should return true
+						return true;
+					} else {
+						return false; // cannot initialize two different
+										// variables to be the same expression
 					}
 				}
-			} else if(thm.getMyItem().equals(exp.getMyItem())){
-				//do a recursive call, if the left side is true check the right side
-				if(validTheoremHelper(thm.getMyLeft(), exp.getMyLeft())){
-					return validTheoremHelper(thm.getMyRight(), exp.getMyRight());
+			} else if (thm.getMyItem().equals(exp.getMyItem())) {
+				// do a recursive call, if the left side is true check the right
+				// side
+				if (validTheoremHelper(thm.getMyLeft(), exp.getMyLeft())) {
+					System.out.println("get my left returned true");
+					return validTheoremHelper(thm.getMyRight(),
+							exp.getMyRight());
 				}
 				return false;
-					
-			} 
-		} else if (thm == null || exp == null){			//one element is null and the other is not
+
+			}
+		} else if (thm == null || exp == null) { // one element is null and the
+													// other is not
 			return false;
 		}
-		
-		//throw new IllegalInferenceException("Improper use of a theorem");
+
+		// throw new IllegalInferenceException("Improper use of a theorem");
 		return false;
-		
+
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/**
-	public boolean validTheorem(String s, Expression exp){
-		if (!hasTheorem(s)){
-			return false;
-		}
-		
-		String theorem = getTheorem(s).toString();
-		String expression = exp.toString();
-		int exprPos = 0;
-		Hashtable<Character, String> myVars = new Hashtable<Character,String>();
-		String specialSymbols = "()&|~=<"; 
+
+/**
+public boolean validTheorem(String s, Expression exp){
+if (!hasTheorem(s)){
+return false;
+}
+
+String theorem = getTheorem(s).toString();
+String expression = exp.toString();
+int exprPos = 0;
+Hashtable<Character, String> myVars = new Hashtable<Character,String>();
+String specialSymbols = "()&|~=<";
         for (int i=0; i<theorem.length()-1; i++) {
-        	//if they have the same character, continue
+         //if they have the same character, continue
             if (theorem.charAt(i) == expression.charAt(exprPos) && specialSymbols.contains("" + theorem.charAt(i))){
-            	continue;
+             continue;
             }
             else{
-            	int nested = 0;
-            	boolean done = false;
-            	//not already a pre-defined variable, needs to be defined
-            	if(!myVars.contains(theorem.charAt(i))){
-            		String exprValue = "";
-            		while(!done){
-                		//check for ~
-            			if(expression.charAt(exprPos) == '~'){
-            				//check to see if it's followed by either parens or a letter
-            				if(expression.charAt(exprPos+1).isLetter()){		//check for out of bounds cases
-            					done = true;
-            				}
-            			} 
-            			//check for a complete () expression
-            			if (expression.charAt(exprPos) == '('){
-            				nested ++;
-            			} else if (expression.charAt(exprPos) == ')'){
-            				nested --;
-            				if(nested == 0){
-            					done = true;
-            				}
-            			}
-        				exprValue += expression.charAt(exprPos);
-            			exprPos ++;
-            			
-            		}
-            		int end = exprPos;
-            		//check if it's a valid expression
-            		try{
-            			Expression e = new Expression(exprValue);
-            		} catch (Exception e){
-            			return false;
-            		}
-            		myVars.put(theorem.charAt(i), exprValue);
-            	} else{ //check to see if the expressions match for the same variable
-            			//if it doesn't match, return false, else, keep parsing
-            		int exprLength = myVars.get(theorem.charAt(i)).length();
-            		String subString = expression.substring(exprPos, exprPos+exprLength);
-            		if (!subString.equals(myVars.get(theorem.charAt(i)))){
-            			return false;
-            		}
-            		exprPos += exprLength;
-            	}
-            	
-            	
-            	//exprPos = 0;
-            	
+             int nested = 0;
+             boolean done = false;
+             //not already a pre-defined variable, needs to be defined
+             if(!myVars.contains(theorem.charAt(i))){
+             String exprValue = "";
+             while(!done){
+                 //check for ~
+             if(expression.charAt(exprPos) == '~'){
+             //check to see if it's followed by either parens or a letter
+             if(expression.charAt(exprPos+1).isLetter()){ //check for out of bounds cases
+             done = true;
+             }
+             }
+             //check for a complete () expression
+             if (expression.charAt(exprPos) == '('){
+             nested ++;
+             } else if (expression.charAt(exprPos) == ')'){
+             nested --;
+             if(nested == 0){
+             done = true;
+             }
+             }
+         exprValue += expression.charAt(exprPos);
+             exprPos ++;
+            
+             }
+             int end = exprPos;
+             //check if it's a valid expression
+             try{
+             Expression e = new Expression(exprValue);
+             } catch (Exception e){
+             return false;
+             }
+             myVars.put(theorem.charAt(i), exprValue);
+             } else{ //check to see if the expressions match for the same variable
+             //if it doesn't match, return false, else, keep parsing
+             int exprLength = myVars.get(theorem.charAt(i)).length();
+             String subString = expression.substring(exprPos, exprPos+exprLength);
+             if (!subString.equals(myVars.get(theorem.charAt(i)))){
+             return false;
+             }
+             exprPos += exprLength;
+             }
+            
+            
+             //exprPos = 0;
+            
             }
             
             //exprPos++;
         }
-		
-		return false;
-		**/
-	
-	
-}
 
+return false;
+**/
+
+}
