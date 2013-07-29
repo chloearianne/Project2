@@ -12,3 +12,10 @@ Terry Tsai parts
 	For the inference class “ic”, we made sure that this inference method should evaluate to true only if the line number’s expression that the first string is pointing to equals the right side of the return expression that the second string is pointing to. We tested cases where the inference is true, using a combination of tildes, and/or’s and implications chained with parentheses to make sure the Expression is being traversed correctly. We also tested cases where ic should fail, such as switching the nodes around or switching a node’s left and right nodes or using completely different nodes that have nothing in common.
   
 	Terry Tsai was the main writer and designer of the inference methods. All other teammates helped him fix bugs and helped him figure out how to implement some of his ideas like determining how best to check if the right side of a node is equal to another node. 
+
+
+
+
+//ASSUME
+
+		For the inference class “assume,” our tests test how the method makes sure it is called after “show,” and that it calls up the parent lineNumber of that number, so the method can it with our argument. If the argument equals the opposite of its parent lineNumber’s expression, or if the argument equals the left side of the parent lineNumber expression, it should return true. Our tests test that assume does that even with complicated strings. We also tested cases where assume should throw an illegal inference exception, like when the strings equal each other but not opposite of each other, or if it is not an appropriate time for the assume method to be called.
