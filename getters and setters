@@ -1,4 +1,59 @@
+  
+  		public Expression getMyExpression() {
+			return myExpression;
+		}
+		
+		public void setMyExpression(Expression e) {
+			myExpression = e;
+		}
+		
+		public SubProof getParent() {
+			return parentProof;
+		}
+		
+		public void setParent(SubProof pf) {
+			parentProof = pf;
+		}
+		
+		public ArrayList<SubProof> getChildProof() {
+			return getChildProofs();
+		}
+		
+		public Hashtable<String, LineNumber> getAssumptions() {
+			return assumptions;
+		}
+		
+		public ArrayList<LineNumber> getEverythingSoFar () {
+			return everythingSoFar;
+		}
 
+		public void addChildProof(SubProof child) {
+			getChildProofs().add(child);
+		}
+
+		public LineNumber getLineNumber() {
+			return myLineNumber;
+		}
+		
+		public void setLineNumber(LineNumber line) {
+			myLineNumber = line;
+		}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   //for proof.java
   // Getters and setters for each instance variable to use in test classes.
