@@ -81,9 +81,9 @@ public class ExpressionTest {
 		
 		try{
 			Expression cf = new Expression("~a"); //basic
-			fail("Should not reach");
-		} catch (IllegalLineException e){
 			assertTrue(true);
+		} catch (IllegalLineException e){
+			fail("Should not reach");
 		}
 	}
 	
