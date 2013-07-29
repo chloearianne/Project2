@@ -221,24 +221,7 @@ public class Proof {
 	throw new IllegalInferenceException("cannot access " + line + " in call to repeat");
 	}
 	
-	public static Expression switchSign(Expression.ExprNode exp) {
-		Expression expression = null;
-		if (exp.getMyItem().equals("~")) {
-			try{
-				expression = new Expression (exp.getMyLeft().toString());
-			} catch (IllegalLineException e){
-				System.out.println("should not have errored");
-			}
-		} else {
-			try{
-				expression = new Expression ("~" + exp.toString());
-			} catch (IllegalLineException e){
-				System.out.println("should not have errored");
-			}
-		}
-		
-		return expression;
-	}
+	
 
 	private void assume(String exp) throws IllegalInferenceException {
 		//fill
