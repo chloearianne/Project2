@@ -49,7 +49,6 @@ public class Proof {
 		} else if (currentLineNum.getReason().equals("show")) {
 			newLine = currentLineNum + ".1";
 		} else if (currentProof.isProven()) {
-			System.out.println("in isProven");
 			int index = curLine.lastIndexOf('.');
 			newLine = curLine.substring(0, index);
 			int index2 = newLine.lastIndexOf('.');
@@ -163,11 +162,13 @@ public class Proof {
 			currentLineNum.setIsProven(true);
 			
 			System.out.println("is proven: " + currentProof.isProven() + " has parent:" + currentProof.hasParent());
-			if (currentProof.isProven() && currentProof.hasParent()){
+			if (currentProof.isProven()){
 				currentLineNum.setIsProven(true);
 				currentLineNum.setExp(currentProof.myExpression);
 				//it's proven to be true, so now the parent proof can use it as an assumption
-				currentProof.parentProof.assumptions.put(currentProof.myLineNumber.getNum(), currentProof.myLineNumber);
+				if (currentProof.hasParent()){
+					currentProof.parentProof.assumptions.put(currentProof.myLineNumber.getNum(), currentProof.myLineNumber);
+				}
 				isTrueGlobal.put(currentLineNum.getNum(), currentLineNum);
 			}
 		} catch (IllegalLineException e){
@@ -234,11 +235,13 @@ public class Proof {
 		} catch(IllegalLineException e){
 			throw e;
 		}
-		if (isTrueGlobal.contains(line)){
-			if(isTrueGlobal.get(line).getExp().equals(expression)){
+		//if the currentProof contains the assumption, it can be used for repeat
+		if (currentProof.assumptions.containsKey(line)){
+			if(currentProof.assumptions.get(line).getExp().equals(expression)){
 				currentLineNum.setExp(expression);
 				currentProof.assumptions.put(currentLineNum.getNum(), currentLineNum);
 				currentProof.lastAddedLine = currentLineNum;
+				return;		//avoids hitting an exception
 			} else{
 				throw new IllegalLineException("Cannot use repeat on the given expression");
 			}
@@ -281,7 +284,7 @@ public class Proof {
 	private void assume(String exp) throws IllegalInferenceException, IllegalLineException {
 		Expression rtn = null;
 		try{
-			rtn = new Expression(exp); //tries to create a new expession out of the given string
+			rtn = new Expression(exp); //tries to create a new expression out of the given string
 			currentLineNum.setExp(rtn);
 		} catch(IllegalLineException e){
 			throw e; // tests if the string is correct 
@@ -292,7 +295,7 @@ public class Proof {
 			currentProof.assumptions.put(currentLineNum.getNum(), currentLineNum);
 			currentProof.lastAddedLine = currentLineNum;
 		} else if(prevLineNum.getExp().myRoot.getMyLeft() != null){
-			if (rtn.toString().equals(prevLineNum.getExp().myRoot.getMyLeft().toString())){
+			if (rtn.equals(prevLineNum.getExp().myRoot.getMyLeft())){
 				currentLineNum.setExp(rtn);
 				currentProof.assumptions.put(currentLineNum.getNum(), currentLineNum);
 				currentProof.lastAddedLine = currentLineNum;
@@ -438,18 +441,13 @@ public class Proof {
 		Expression line1Exp = lineNum1.getExp();
 		
 		//first this needs to check if line1 is proven, can only do that with LINE NUMBER!
-			if (line1Exp.myRoot.equals(rtn.myRoot.getMyRight())) { 
-				currentLineNum.setExp(rtn);
-				currentProof.assumptions.put(currentLineNum.getNum(), currentLineNum);
-				currentProof.lastAddedLine = currentLineNum;
-				//System.out.println("Result: " + rtn.toString() + " is true!");
-			} else {
-				throw new IllegalInferenceException("bad inference");
-			}
-		//}
-		//else {
-		//	throw new IllegalInferenceException("bad inference");
-		//}
+		if (line1Exp.myRoot.equals(rtn.myRoot.getMyRight())) { 
+			currentLineNum.setExp(rtn);
+			currentProof.assumptions.put(currentLineNum.getNum(), currentLineNum);
+			currentProof.lastAddedLine = currentLineNum;
+		} else {
+			throw new IllegalInferenceException("bad inference");
+		}
 	}	
 	
 	
@@ -473,7 +471,8 @@ public class Proof {
 	}
 	
 	public boolean isComplete ( ) {
-		if (originalProof == null || currentLineNum.toString().equals("1")) {
+		if (originalProof == null || currentLineNum.getReason().equals("show") 
+				|| !currentProof.equals(originalProof)) {
 			return false;
 		}
 		if(currentLineNum.getExp()==null){
@@ -482,7 +481,7 @@ public class Proof {
 		String firstString = originalProof.myExpression.toString();
 		String lastString = currentLineNum.getExp().toString();
 		
-		return lastString.equals(firstString);// && currentProof.myLineNumber.isProven();
+		return lastString.equals(firstString);
 	
 	}
 	
@@ -496,7 +495,6 @@ public class Proof {
 		private SubProof parentProof;
 		private ArrayList<SubProof> childProofs;
 		private LineNumber myLineNumber;
-		private String reason;
 		private ArrayList<LineNumber> everythingSoFar;
 		private LineNumber lastAddedLine;
 		
@@ -519,7 +517,7 @@ public class Proof {
 
 		public boolean isProven(){
 			if (!lastAddedLine.equals(myLineNumber)){
-				return lastAddedLine.getExp().toString().equals(myLineNumber.getExp().toString());
+				return lastAddedLine.getExp().equals(myLineNumber.getExp());
 			}
 			return false;
 			
