@@ -452,26 +452,12 @@ public class Proof {
 	}
 	
 	public boolean isComplete ( ) {
-		if(originalProof.childProofs.size() <= 0){
+		if (getOriginalProof() == null) {
 			return false;
 		}
-		int sizeOfChildren = originalProof.childProofs.size();
-		// If the last step of the proof has children, then that subproof is clearly not done and it's impossible
-		// for the entire proof to be done.
-		if (!(originalProof.childProofs.get(sizeOfChildren - 1).childProofs == null)) {
-			return false;
-		}
-		// Convert originalProof expression (saved in firstExpr) to a string, and convert the most recent proof step 
-		// to a string and save it in lastExpr. Compare these two to see if they're the same. If they are, the proof is done.
-		SubProof toProve = originalProof.childProofs.get(0);
-		Expression firstExpr = toProve.myExpression;
-		String firstString = firstExpr.toString();
-		
-		SubProof lastProof = originalProof.childProofs.get(sizeOfChildren - 1);
-		Expression lastExpr = lastProof.myExpression;
-		String lastString = lastExpr.toString();
-		return lastString.equals(firstString) && lastProof.myLineNumber.IsProven();
-		
+		String firstString = getOriginalProof().getMyExpression().toString();
+		String lastString = getCurrentProof().getMyExpression().toString();
+		return lastString.equals(firstString) && getCurrentProof().getLineNumber().isProven();
 	}
 	
 	// SubProof is a child class much like Amoeba was a child class of AmoebaFamily. Each proof object has a original proof
