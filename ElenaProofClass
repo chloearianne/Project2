@@ -505,3 +505,13 @@ public class Proof {
 		}
 	}
 }
+
+	public boolean isComplete ( ) {
+		if (getOriginalProof() == null) {
+			return false;
+		}
+		String firstString = getOriginalProof().getMyExpression().toString();
+		String lastString = getCurrentProof().getMyExpression().toString();
+		return lastString.equals(firstString) && getCurrentProof().getLineNumber().isProven();
+	}
+
