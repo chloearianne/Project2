@@ -1,0 +1,104 @@
+public class LineNumber {
+
+  private Proof.SubProof myProof;
+	private boolean proven;
+	private String myReason;
+	private Expression myExpression;
+	private String myString;   //ex. "3.1.2"
+
+	public LineNumber() {
+		myString = "1";
+		proven = false;
+		myReason = null;
+		myExpression = null;
+		myProof = null;
+		
+	}
+
+	//generates a new lineNumber object given a string of the line number
+	public LineNumber(String line){
+		myString = line;
+		proven = false;
+		myReason = null;
+		myExpression = null;
+		myProof = null;
+		
+	}
+	
+	
+	
+	/*
+	public LineNumber(LineNumber previous, boolean startNewSubProof) {
+		myProof = new Proof.SubProof(null, null, null);
+		if (startNewSubProof) {
+			stepOfSubproof = 1;
+		} else {
+			myProof = previous.myProof;
+			stepOfSubproof = previous.stepOfSubproof + 1;
+		}
+		proven = false;
+		myNumber(previous);
+	}
+	*/
+	
+	
+	public void setExp(Expression exp){
+		this.myExpression = exp;
+	}
+	
+	public void setReason(String reason){
+		this.myReason = reason;
+	}
+	
+	public String getReason(){
+		return this.myReason;
+	}
+	
+	public void setIsProven(boolean proven){
+		this.proven = proven;
+	}
+	
+	public boolean IsProven(){
+		return proven;
+	}
+	
+	public void setProof(Proof.SubProof newProof){
+		myProof = newProof;
+	}
+	
+	public Expression getExp(){
+		return myExpression;
+	}
+	
+	public String toString(){
+		return myString;
+	}
+	
+	/*
+	public void myNumber(LineNumber prev) {
+		String line;
+		if (prev.myProof!= null && !prev.myProof.hasParent()) {
+			line = stepOfSubproof + "";
+		} else {
+			int length = prev.myString.length();
+			if (stepOfSubproof - 1 < 10){
+				line = prev.myString.substring(0, length - 1);
+			} else if (stepOfSubproof - 1 < 100) {
+				line = prev.myString.substring(0, length - 2);
+			} else {
+				line = prev.myString.substring(0, length - 3);
+			}
+			line += stepOfSubproof;
+		}
+		myString = line;
+	}
+
+	public String toString() {
+		return this.myString;
+	}
+	
+	*/
+}
+
+
+
