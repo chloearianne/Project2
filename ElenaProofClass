@@ -161,7 +161,6 @@ public class Proof {
 			currentLineNum.setReason(reason);
 			currentLineNum.setString(x);
 			currentLineNum.setIsProven(true);
-			currentProof.everythingSoFar.add
 			
 			System.out.println("is proven: " + currentProof.isProven() + " has parent:" + currentProof.hasParent());
 			if (currentProof.isProven() && currentProof.hasParent()){
@@ -463,7 +462,9 @@ public class Proof {
 	
 	private String toStringHelper(SubProof pf) {
 		String toReturn = "";
-		toReturn = toReturn + "/n" + pf.myLineNumber + " " + pf.reason + " " + pf.myExpression.toString();
+		for(LineNumber line: pf.everythingSoFar){
+			System.out.println(line.getEntireLine());
+		}
 		Iterator<SubProof> iter = pf.childProofs.iterator();
 		while (iter.hasNext()) {
 			toStringHelper(iter.next());
@@ -473,6 +474,9 @@ public class Proof {
 	
 	public boolean isComplete ( ) {
 		if (originalProof == null || currentLineNum.toString().equals("1")) {
+			return false;
+		}
+		if(currentLineNum.getExp()==null){
 			return false;
 		}
 		String firstString = originalProof.myExpression.toString();
