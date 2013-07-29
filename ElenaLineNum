@@ -43,7 +43,7 @@ public class LineNumber {
 		this.proven = proven;
 	}
 	
-	public boolean IsProven(){
+	public boolean isProven(){
 		return proven;
 	}
 	
@@ -55,6 +55,7 @@ public class LineNumber {
 	public Expression getExp(){
 		return myExpression;
 	}
+	
 	
 	
 	public void setString(String s){
