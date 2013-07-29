@@ -1,0 +1,36 @@
+Readme for project 2
+
+
+In expressionTest.java, we tested many different cases as shown in our 7 test methods. The first one tests basic and normal situations with Expression. Integrated into the testing, we tested the toString method for ExprNodes, so there was no separate method for toString. Any valid string we wrote was also tested the toString method.
+
+In the first case, we decided to test a blank input, a single valid character, a standard sequence including ‘&’ and ‘|’,  and general cases where we are missing a right parenthesis. We decided to test these just to make sure the basics worked because we cant test anything further without the basics.  With other testing methods, we were able to test a larger quantity of tests showing the validity of our code, but they were not in a jUnit test case because that would just be too much code.
+
+Our second test tested the use of ‘~’. We tested a basic tilde use, and several cases with multiple tildes at work including lots of tildes followed by a valid character, a longer expression involving tildes and a regular expression preceded by a large number of tildes. We found that if the tildes would work in all of these cases, then they would be able to  pass any combination of tildes.
+
+Our third test tested the implies operator. We started off with a case involving multiple implications which were nested, followed by a longer implication statement using tildes, some standard implications, the implies symbol itself, and successive non-parenthesized implications. 
+
+Our fourth test involved the ‘and’ and ‘or’ symbols, where we tested basically the same tests as the implications but replacing the implies symbol with either an and symbol or an or symbol. Our tests ranged from basic uses of the symbols, to complex nested situations with tildes, all of which passed with flying colors.
+
+Our fifth test checked for valid characters. We wanted to make sure a user could not input any symbol other than the symbols involved in the logic and lower-case letter and have the symbol register ok. We has tests that included one character tests that should not work, long and random input of characters that did not work, as well as letters next to each other and randomly inserted symbols or capital letters.
+
+Our sixth test tested the use of parenthesis. We tested empty parenthesis, missing a right or left parentheses, long strings of parenthesis, nested parenthesis, and parenthesis going the wrong direction. These tests all pass to assure the code we have is correct.
+
+Our seventh and final test tested the equals method. We chose a variety of expressions ranging from deep nesting and involved expressions , to single and blank expressions. The include nested and statements, next implications, and the use of tildes, all of which pass the equals method showing the effectiveness of the method.
+
+
+
+
+
+
+
+
+
+
+
+
+
+We started this project by gathering and discussing what each person would do, and we begun. We met up pretty frequently throughout the process. 
+
+For the expression class, even though we knew it was going to implemented as a tree, we had a wrong idea of how to parse it. We wrote hundreds of lines of code trying to catch mistakes in the String itself as opposed to catching errors while making the tree. This led to a bunch of wasted time checking a whole bunch of cases which would be thousands of lines of code to check them all. We tried to check the correct uses of each symbol, correct characters themselves, correct parenthesis use, and basically to make sure if it couldn’t do this it wouldn’t as opposed to just checking what it could be. The key to this method was Elena suggesting Nicholas check the string as the nodes were created and within an hour (after hours and hours of coding) the problem was fixed and all was left was testing the expression to see if everything was good.
+
+For the extends proof part of proof, Elena started very early and coded up a rough idea of what the code should do. She could not test the code until most of the other parts were done so she took a lot of time just to help other people which she did fantastically at. Near the end, after the line number class was rewritten, Elena was able to check her code to get to where the code is now. After mixing all the code and putting it together, which involved everyone’s code, we then went through a long process of debugging.
