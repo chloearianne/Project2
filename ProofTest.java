@@ -98,19 +98,28 @@ public class ProofTest {
 		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		pftest.setPreviousLineNumber(pftest.getCurrentLineNumber());
 		pftest.getCurrentLineNumber().setReason("mt");
+		pftest.getCurrentLineNumber().setProof(pf2);
+		
+		pftest.setCurrentProof(pf2);
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("2.2"));
 		pftest.getCurrentLineNumber().setReason("mt");
+		pftest.getCurrentLineNumber().setProof(pf2);
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("2.3"));
 		
 		
 		//attempt to exit subproof
 		pftest.getCurrentProof().getLineNumber().setIsProven(true);
 		pftest.getCurrentLineNumber().setReason("mt");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("3"));
 		pftest.setCurrentProof(pftest.getOriginalProof());
 		pftest.getCurrentLineNumber().setProof(pftest.getOriginalProof());
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("4"));
 		pftest.getPreviousLineNumber().setReason("mt");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5"));
 		
 		// attempt to start another subproof
@@ -119,11 +128,15 @@ public class ProofTest {
 		pftest.setCurrentProof(pf3);
 		pftest.getCurrentLineNumber().setProof(pf3);
 		pftest.getPreviousLineNumber().setReason("mt");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.1"));
-		pftest.getCurrentLineNumber().setReason("mt");
 		pftest.getCurrentLineNumber().setProof(pf3);
+		pftest.getCurrentLineNumber().setReason("mt");
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.2"));
 		pftest.getCurrentLineNumber().setProof(pf3);
+		pftest.getCurrentLineNumber().setIsProven(true);
 		pftest.getCurrentLineNumber().setReason("mt");
 		assertTrue(pftest.nextLineNumber().toString().equals("5.3"));
 		
@@ -132,20 +145,28 @@ public class ProofTest {
 		pftest.getCurrentLineNumber().setReason("show");
 		pftest.setCurrentProof(pf3a);
 		pftest.getCurrentLineNumber().setProof(pf3a);
+		pftest.getPreviousLineNumber().setReason("mt");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.3.1"));
 		pftest.getCurrentLineNumber().setReason("ic");
 		pftest.getCurrentLineNumber().setProof(pf3a);
+		pftest.getCurrentLineNumber().setIsProven(true);
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.3.2"));
 		pftest.getCurrentLineNumber().setProof(pf3a);
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.3.3"));
 		
 		// attempt to exit sub-subproof
 		pftest.getCurrentProof().getLineNumber().setIsProven(true);
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.4"));
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		pftest.getCurrentLineNumber().setReason("ic");
 		pftest.setCurrentProof(pf3);
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5"));
 		
 		// attempt to start sub-subproof
@@ -153,11 +174,16 @@ public class ProofTest {
 		pftest.getCurrentLineNumber().setReason("show");
 		pftest.setCurrentProof(pf5a);
 		pftest.getCurrentLineNumber().setProof(pf5a);
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.1"));
 		pftest.getCurrentLineNumber().setReason("ic");
 		pftest.getCurrentLineNumber().setProof(pf5a);
+		pftest.getCurrentLineNumber().setIsProven(true);
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.2"));
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.3"));
 		
 		// attempt to start sub-sub-subproof
@@ -165,40 +191,55 @@ public class ProofTest {
 		pftest.getCurrentLineNumber().setReason("show");
 		pftest.setCurrentProof(pf5b);
 		pftest.getCurrentLineNumber().setProof(pf5b);
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.3.1"));
 		pftest.getCurrentLineNumber().setReason("ic");
 		pftest.getCurrentLineNumber().setProof(pf5b);
+		pftest.getCurrentLineNumber().setIsProven(true);
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.3.2"));
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.3.3"));
 		
 		// attempt to exit sub-sub-subproof
 		pftest.getCurrentProof().getLineNumber().setIsProven(true);
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
+		
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.4"));
 		pftest.setCurrentProof(pf5a);
 		pftest.getCurrentLineNumber().setProof(pf5a);
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.5.5"));
 				
 		// attempt to exit sub-subproof
 		pftest.getCurrentProof().getLineNumber().setIsProven(true);
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.6"));
 		pftest.setCurrentProof(pf3);
 		pftest.getCurrentLineNumber().setProof(pf3);
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
+		pftest.getCurrentProof().getLineNumber().setIsProven(false);
 		assertTrue(pftest.nextLineNumber().toString().equals("5.7"));
 		
 		// attempt to exit subproof
 		pftest.getCurrentProof().getLineNumber().setIsProven(true);
 		pftest.getCurrentLineNumber().setReason("ic");
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("6"));
 		pftest.setCurrentProof(pftest.getOriginalProof());
 		pftest.getCurrentLineNumber().setProof(pftest.getOriginalProof());
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("7"));
 		pftest.getCurrentLineNumber().setReason("ic");
 		pftest.setPreviousLineNumber(pftest.getCurrentLineNumber());
+		pftest.getCurrentLineNumber().setIsProven(true);
 		assertTrue(pftest.nextLineNumber().toString().equals("8"));
 	}
 
