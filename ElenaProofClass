@@ -161,11 +161,14 @@ public class Proof {
 			currentLineNum.setReason(reason);
 			currentLineNum.setString(x);
 			currentLineNum.setIsProven(true);
+			currentProof.everythingSoFar.add
 			
 			System.out.println("is proven: " + currentProof.isProven() + " has parent:" + currentProof.hasParent());
 			if (currentProof.isProven() && currentProof.hasParent()){
 				currentLineNum.setIsProven(true);
 				currentLineNum.setExp(currentProof.myExpression);
+				//it's proven to be true, so now the parent proof can use it as an assumption
+				currentProof.parentProof.assumptions.put(currentProof.myLineNumber.getNum(), currentProof.myLineNumber);
 				isTrueGlobal.put(currentLineNum.getNum(), currentLineNum);
 			}
 		} catch (IllegalLineException e){
@@ -395,6 +398,7 @@ public class Proof {
 			throw e;
 		}
 		//checks for valid lineNumbers
+		System.out.println(currentProof.assumptions);
 		LineNumber lineNum2 = currentProof.assumptions.get(line2);
 		LineNumber lineNum1 = currentProof.assumptions.get(line1);
 		if(lineNum1 == null){
@@ -524,11 +528,5 @@ public class Proof {
 		public void addChildProof(SubProof child) {
 			childProofs.add(child);
 		}
-
-		public LineNumber lineNumber () {
-			return myLineNumber;
-		}
-		
-		
 	}
 }
