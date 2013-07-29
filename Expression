@@ -258,24 +258,7 @@ public class Expression3 {
 			return true;
 		}
 		
-		public static Expression switchSign(Expression.ExprNode exp) {
-		Expression expression = null;
-		if (exp.getMyItem().equals("~")) {
-			try{
-				expression = new Expression (exp.getMyLeft().toString());
-			} catch (IllegalLineException e){
-				System.out.println("should not have errored");
-			}
-		} else {
-			try{
-				expression = new Expression ("~" + exp.toString());
-			} catch (IllegalLineException e){
-				System.out.println("should not have errored");
-			}
-		}
-		
-		return expression;
-	}
+
 
 		/*
 		public String toString() {
