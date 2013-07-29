@@ -38,7 +38,7 @@ public class TheoremSet {
 		}
 		
 				
-		theorems.put(s, e);
+		theorems.put(s.toLowerCase(), e);
 		
 		return e;
 	}
@@ -56,40 +56,56 @@ public class TheoremSet {
 	public boolean validTheorem(String s, Expression exp){
 		if (!hasTheorem(s)){
 			return false;
-		}
-		
+		}		
 		Expression theorem = getTheorem(s);
-		return validTheoremHelper(theorem, exp);
+		return validTheoremHelper(theorem.myRoot, exp.myRoot);
 			
 	}
 	
 	//hashtable to keep track of the variables and the corresponding expression
-	private Hashtable<String, Expression> myVars= new Hashtable<String, Expression>();
+	private Hashtable<String, Expression.ExprNode> myVars= new Hashtable<String, Expression.ExprNode>();
+	
+	
+	//check for null left value for ~ expressions
 	
 	//theorem and expression should have the same format until you hit a variable for the theorem
 	//checks to see if the resulting tree nodes are equal
-	private boolean validTheoremHelper(Expression thm, Expression exp){
-		//check if this is a correct use of regex
-		//if it's a variable, it should always be at a leaf
-		if (thm.myItem.matches("[a-z]")){
-			if(myVars.containsKey(thm.myItem)){
-				if(!myVars.get(thm.myItem).equals(exp)){
-					return false;
-					//throw new IllegalInferenceException("Improper use of theorem. Variables do not match up.");
+	private boolean validTheoremHelper(Expression.ExprNode thm, Expression.ExprNode exp){
+		//base case
+		if(thm == null && exp == null){
+			return true;
+		} else if(thm != null && exp != null){
+			//check if this is a correct use of regex
+			//if it's a variable, it should always be at a leaf
+			if (thm.getMyItem().matches("[a-z]")){
+				//
+				if(myVars.containsKey(thm.getMyItem())){
+					if(!myVars.get(thm.getMyItem()).equals(exp)){
+						//throw new IllegalInferenceException("Improper use of theorem. Variables do not match up.");
+						return false;
+					} 
 				} else{
-					myVars.put(thm.myItem, exp);
-					//if it hits the variable, then it should be at a leaf so it should return true
-					return true;
+					if(!myVars.contains(exp)){
+						//variable not initialized yet, add to table
+						myVars.put(thm.getMyItem(), exp);
+						//if it hits the variable, then it should be at a leaf so it should return true
+						return true;
+					} else{
+						return false; //cannot initialize two different variables to be the same expression
+					}
 				}
-			}
-		} else if(thm.myItem.equals(exp.myItem)){
-			//do a recursive call, if the left side is true check the right side
-			if(validTheoremHelper(thm.myLeft, exp.myLeft)){
-				return validTheoremHelper(thm.myRight, exp.myRight);
-			}
+			} else if(thm.getMyItem().equals(exp.getMyItem())){
+				//do a recursive call, if the left side is true check the right side
+				if(validTheoremHelper(thm.getMyLeft(), exp.getMyLeft())){
+					return validTheoremHelper(thm.getMyRight(), exp.getMyRight());
+				}
+				return false;
+					
+			} 
+		} else if (thm == null || exp == null){			//one element is null and the other is not
 			return false;
-				
-		} 
+		}
+		
 		//throw new IllegalInferenceException("Improper use of a theorem");
 		return false;
 		
