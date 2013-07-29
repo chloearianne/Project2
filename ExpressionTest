@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class ExpressionTest {
 
-  /*
+	/*
 	 * I never test findSymbol because everything to make the expression relies on findSymbol.
 	 * If it were not working, no test here would pass.
 	 * 
@@ -80,7 +80,7 @@ public class ExpressionTest {
 		}
 		
 		try{
-			Expression cf = new Expression("(a=>b=>c)"); //multiple => in a row
+			Expression cf = new Expression("~a"); //basic
 			fail("Should not reach");
 		} catch (IllegalLineException e){
 			assertTrue(true);
