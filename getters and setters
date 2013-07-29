@@ -1,0 +1,114 @@
+
+  
+  //for proof.java
+  // Getters and setters for each instance variable to use in test classes.
+	public LineNumber getCurrentLineNumber() {
+		return currentLineNum;
+	}
+	
+	public LineNumber getPreviousLineNumber() {
+		return prevLineNum;
+	}
+	
+	public void setPreviousLineNumber(LineNumber line) {
+		prevLineNum = line;
+	}
+	
+	public void setCurrentLineNumber(LineNumber line) {
+		currentLineNum = line;
+	}
+	
+	public SubProof getCurrentProof() {
+		return currentProof;
+	}
+	
+	public void setCurrentProof(SubProof pf) {
+		currentProof = pf;
+	}
+	
+	public Hashtable<String, LineNumber> getIsTrueGlobal() {
+		return isTrueGlobal;
+	}
+	
+	public SubProof getOriginalProof() {
+		return originalProof;
+	}
+	
+	public void setOriginalProof(SubProof pf) {
+		originalProof = pf;
+	}
+	
+	public TheoremSet getTheoremSet() {
+		return theorems;
+	}
+	
+	public void setTheoremSet(TheoremSet thms) {
+		theorems = thms;
+	}
+	
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  // for line number
+  
+  
+	//Getters and setters for each instance variable to use in test/other classes.
+	public void setExp(Expression exp) {
+		this.myExpression = exp;
+	}
+
+	public void setReason(String reason) {
+		this.myReason = reason;
+	}
+
+	public String getReason() {
+		return this.myReason;
+	}
+
+	public void setIsProven(boolean proven) {
+		this.proven = proven;
+	}
+
+	public boolean IsProven() {
+		return proven;
+	}
+
+	public void setProof(Proof.SubProof newProof) {
+		myProof = newProof;
+	}
+
+	public Expression getExp() {
+		return myExpression;
+	}
+
+	public void setString(String s) {
+		myString = s;
+	}
+
+	public String getNum() {
+		return myNumber;
+	}
+
+	public String getEntireLine() {
+		return myString;
+	}
+
+	public String toString() {
+		return myNumber;
+	}
+  
+  
+  
+  
